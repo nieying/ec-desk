@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>用户角色</title>
+  <style>html { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f4f1ea; color: #1c1915; font: 16px/1.65 "Iowan Old Style", Palatino, "Songti SC", "Source Han Serif SC", serif; }
+.layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+nav { position: sticky; top: 0; align-self: start; height: 100vh; overflow: auto; padding: 28px 18px 40px; background: #1c1915; color: #f6f1e8; }
+nav a { color: inherit; text-decoration: none; }
+nav .brand { display: block; margin-bottom: 22px; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #d7c4a3; }
+nav h2 { margin: 18px 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #a89880; font-weight: 600; }
+nav ul { list-style: none; margin: 0; padding: 0; }
+nav li a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 14px; line-height: 1.4; }
+nav li a:hover, nav li a.current { background: #3a332b; }
+main { padding: 42px 7vw 80px; max-width: 1080px; }
+article h1 { margin: 0 0 18px; font-size: 36px; line-height: 1.2; }
+article h2 { margin: 34px 0 12px; padding-top: 8px; font-size: 22px; border-top: 1px solid #e4d9c8; }
+article h3 { margin: 24px 0 8px; font-size: 18px; }
+article p { margin: 0 0 12px; }
+article ul, article ol { margin: 0 0 14px; padding-left: 1.3em; }
+article li { margin: 4px 0; }
+article a { color: #0e6b5c; }
+code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.88em; background: #efe6d6; padding: 0 4px; border-radius: 4px; }
+.code { margin: 0 0 16px; background: #241f1a; color: #f6f1e8; border-radius: 10px; overflow: auto; }
+.code-label { padding: 8px 14px 0; font: 12px/1 ui-monospace, monospace; color: #d7c4a3; }
+.code pre { margin: 0; padding: 12px 14px 14px; }
+.code code { background: transparent; color: inherit; padding: 0; }
+.table-wrap { overflow: auto; margin: 0 0 18px; border: 1px solid #e4d9c8; border-radius: 10px; background: #fffdf8; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.45; }
+th, td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid #efe6d6; }
+th { background: #1c1915; color: #f6f1e8; font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.mermaid { margin: 8px 0 18px; background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px; padding: 12px; }
+.lead { margin-top: -6px; }
+.cat-tabs, .sub-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.cat-tabs button, .sub-tabs button, .cards button {
+  font: inherit; cursor: pointer; border: 1px solid #e4d9c8; background: #fffdf8; color: #1c1915;
+}
+.cat-tabs button { padding: 8px 14px; border-radius: 999px; font-size: 14px; }
+.sub-tabs { margin-bottom: 18px; }
+.sub-tabs button { padding: 6px 10px; border-radius: 8px; font-size: 13px; }
+.cat-tabs button[aria-selected="true"], .sub-tabs button[aria-selected="true"] {
+  background: #1c1915; color: #f6f1e8; border-color: #1c1915;
+}
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 16px; }
+.cards button { text-align: left; border-radius: 12px; padding: 16px; }
+.cards button:hover { border-color: #1c1915; }
+.cards strong { display: block; margin-bottom: 6px; font-size: 18px; }
+.cards span { display: block; color: #6d6256; font-size: 14px; line-height: 1.45; }
+.steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+.steps li {
+  counter-increment: step; position: relative; margin: 0 0 8px; padding: 10px 12px 10px 46px;
+  background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px;
+}
+.steps li::before {
+  content: counter(step); position: absolute; left: 12px; top: 12px; width: 22px; height: 22px;
+  border-radius: 999px; background: #1c1915; color: #f6f1e8; font-size: 12px; line-height: 22px; text-align: center;
+}
+[hidden] { display: none !important; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  nav { position: relative; height: auto; }
+  main { padding: 28px 18px 64px; }
+  .cards { grid-template-columns: 1fr; }
+}</style>
+</head>
+<body>
+  <div class="layout">
+    <nav><a class="brand" href="../index.html">EasyConnect 文档</a><h2>知识库</h2><ul><li><a class="current" href="01-user-roles.html">用户角色</a></li><li><a href="02-product-parameters.html">产品参数</a></li><li><a href="03-product-definitions.html">产品定义</a></li><li><a href="quotation/01-background.html">询价</a></li><li><a href="order-lifecycle/01-order.html">订单</a></li><li><a href="order-lifecycle/02-lifecycle.html">存续</a></li></ul></nav>
+    <main><article>
+      <h1>用户角色</h1>
+      <p class="lead">先看人站在哪一边，再看具体机构或岗位。一个人只属于一家机构。</p>
+      <div class="cat-tabs" id="cat-tabs" role="tablist" aria-label="分类"></div>
+      <section id="panel"></section>
+    </article></main>
+  </div>
+  <script>
+const CATS = [
+  ["overview", "总览"],
+  ["buyer", "买方"],
+  ["desk", "分销台"],
+  ["issuer", "发行商"],
+  ["off", "不登录"]
+];
+
+const PAGES = [
+  { id: "sides", cat: "overview", name: "三边", title: "三边",
+    body: ["登录的是机构里的人。买方提出条款并按下对客价成交；分销台把询价转给发行商，加上 UF 后释放报价；发行商只处理发给自己的那一截。"],
+    cards: [
+      ["buyer", "买方", "EAM、券商、私人银行、家办、基金和财资。看对客价，下单，跟踪自己客户的存续。"],
+      ["desk", "分销台", "平台或券商的结构产品部。向多家发行商询价，看内部价，簿记并管存续。"],
+      ["issuer", "发行商", "出票银行。回自己收到的价，确认自己的成交。担任计算代理人才看存续。"]
+    ] },
+  { id: "price", cat: "overview", name: "谁看哪档价", title: "谁看哪档价",
+    body: ["票面价是对客价。票面裸价、UF、对客毛利是内部价。"],
+    tables: [{ heads: ["谁", "能看见"], rows: [
+      ["买方机构", "已释放的对客价。看不到发行商裸价，也看不到毛利"],
+      ["分销台的交易台、收入、管理员", "内部价，以及还没释放的发行商回复"],
+      ["发行商", "只看见发给自己的条款和规模。看不到别家报价，看不到分销点差"],
+      ["终端客户、托管行", "不登录。名字或联系人写在单据上"]
+    ]}] },
+  { id: "flow", cat: "overview", name: "一笔单怎么走", title: "一笔单怎么走",
+    steps: [
+      "EAM 的投顾按某位终端客户的需求填好条款，发给分销台。",
+      "覆盖销售认领。交易台把同一条款分给几家发行商。",
+      "报价员各自回价。交易台选一家，加上 UF，把对客价释放给 EAM。",
+      "投顾接受后下单。金额或产品需要审批时，先过买方的审批人。",
+      "运营把成交确认和托管指令发给托管行。",
+      "存续运营跟踪观察日，计算代理人确认敲出或票息。收入岗位按 UF 和返佣记账。"
+    ] },
+  { id: "eam", cat: "buyer", name: "EAM", title: "EAM 外部资产管理人",
+    body: [
+      "EAM（External Asset Manager）拿客户的授权，在托管行或私人银行的账户上做投资决定。钱在客户名下，EAM 赚管理费和绩效费，票据不进自己的自营账。",
+      "一个 EAM 通常同时管多位高净值客户，所以一笔询价要落到具体的 End Client，方便适当性、持仓和对账。他们向分销台询价，在已释放的对客价里下单，之后看敲出、票息和到期。"
+    ],
+    tables: [{ heads: ["岗位", "干什么"], rows: [
+      ["投资顾问 / Portfolio Manager", "对具体客户发起询价和下单。默认只看自己负责的客户"],
+      ["投资总监 / CIO", "看全机构的询价和持仓，决定要不要做某类结构或某个标的"],
+      ["客户主任", "维护 End Client 资料、风险等级、专业投资者身份。下单前核对这笔产品适不适合这个人"],
+      ["交易助理", "把投顾确认过的条款录进系统，跟踪报价是否释放、订单是否成交"],
+      ["运营", "核对成交确认、托管账户、交割股票或现金，确认存续事件已经反映到客户账户"],
+      ["合规", "管专业投资者、跨境销售限制、复杂产品审批。可以否决一笔订单，不改价格"],
+      ["机构管理员", "开本机构用户和团队，分配谁能看哪些客户。不能把分销商没开通的产品或发行商打开"]
+    ]}] },
+  { id: "broker", cat: "buyer", name: "券商", title: "券商",
+    body: ["券商是持牌经纪商，结构产品通常放在财富管理或股票衍生部门。同一家券商可以两边都有人，但是两套账号。"],
+    tables: [
+      { heads: ["坐法", "业务含义", "入口"], rows: [
+        ["券商自己就是分销台", "客户直接向这家券商询价。券商的交易台再去问发行商，加上 UF 后报给客户，自己簿记和做存续", "分销商入口，岗位在「分销台」"],
+        ["券商是平台的客户", "券商没有自己的发行商网络，或某类产品要借平台的发行商覆盖。销售向平台询价，平台返回对客价", "签约机构入口，和 EAM 同一边"]
+      ]},
+      { caption: "作为买方坐进来时", heads: ["岗位", "干什么"], rows: [
+        ["客户经理 RM", "面对自己的投资者或下游 EAM，发起询价、解释条款、下单"],
+        ["结构产品销售", "帮客户改执行价、票息、敲出，决定这单问不问"],
+        ["销售交易员", "催报价、核对规模、确认客户是否接受"],
+        ["产品审批人", "金额、杠杆或复杂产品要先过内部审批再下单"],
+        ["合规与适当性", "核对专业投资者、集中度、销售话术和录音要求"],
+        ["券商运营", "把成交写进券商自己的账户系统，对接托管和结算"],
+        ["机构管理员", "管本券商在平台上的用户、团队和审批级数"]
+      ]}
+    ] },
+  { id: "pb", cat: "buyer", name: "私人银行", title: "私人银行",
+    body: ["客户是行内私人银行客户，关系在 RM 手里。产品专员帮 RM 选结构。金额大或产品复杂时要投资委员会或合规审批。私人银行自己有结构台时，结构台走分销商入口，RM 仍走签约机构入口。"],
+    tables: [{ heads: ["岗位", "干什么"], rows: [
+      ["私人银行 RM", "代表客户询价和下单，对客户解释收益和接股票的风险"],
+      ["投资顾问 / 产品专员", "挑选结构和标的，比较票息和保护水平"],
+      ["投资委员会 / 审批人", "批准超限额、高杠杆或非白名单产品"],
+      ["私人银行运营", "把票据放进客户组合，处理票息入账和提前赎回"],
+      ["合规", "跨境预约、复杂产品销售资格、利益冲突"]
+    ]}] },
+  { id: "fo", cat: "buyer", name: "家族办公室", title: "家族办公室",
+    body: ["单一家族办公室（SFO）管一个家族的钱，下单的人往往就是 CIO 或主任。多家办（MFO）服务多个家族，每个家族是一个 End Client，投顾按家族分开看单。"],
+    tables: [{ heads: ["岗位", "干什么"], rows: [
+      ["CIO / 主任", "决定做不做、做多大、接受哪一家的对客价"],
+      ["投资经理", "MFO 里按家族询价和下单"],
+      ["财务 / 运营", "核对资金、托管账户和税务处理，尤其是实物交割来的股票"]
+    ]}] },
+  { id: "other-buyer", cat: "buyer", name: "其他买方", title: "其他买方",
+    body: ["这几类也会来买票据，形态比 EAM 和券商更轻，或资金主体不是自然人。"],
+    tables: [{ heads: ["机构", "是谁", "在系统里的用法"], rows: [
+      ["独立理财顾问 IFA", "持牌顾问，常常挂靠券商或保险经纪", "要自己询价就开成签约机构。只介绍客户、自己不下单的，记在分销网络里拿返佣"],
+      ["基金和保险资管", "用基金或保险账户买票据", "End Client 往往是那只基金或账户。在意 ISIN、估值、托管和会计分类"],
+      ["企业财资", "公司财务用闲置现金买短期限票据", "通常是财资经理。常见 ELN、保本派息"]
+    ]}] },
+  { id: "sales", cat: "desk", name: "销售与交易", title: "销售与交易",
+    body: ["分销台把买方和发行商接起来，可以是独立平台，也可以是券商、私人银行内部的结构产品部。这一组负责条款和价格，能看到还没释放的发行商回复。"],
+    tables: [{ heads: ["岗位", "干什么"], rows: [
+      ["覆盖销售", "对着一批买方机构。帮他们改条款、催交易台、解释价格。看自己覆盖的客户"],
+      ["交易台 / 询价台", "把询价发给发行商，收回报价，加上 UF，决定何时释放。处理超时、改价、Last Look。内部价的主要使用岗位"],
+      ["交易台主管", "分派询价，看发行商覆盖是否均衡，批准异常点差或超限额询价"]
+    ]}] },
+  { id: "ops", cat: "desk", name: "运营与存续", title: "运营与存续",
+    body: ["成交之后由这一组接手。他们不改询价价格。券商自营或库存账户若要买票据再卖出，记在分销台自己的账本上，由交易台处理。"],
+    tables: [{ heads: ["岗位", "干什么"], rows: [
+      ["运营 / 中台", "出成交确认，写托管和结算指令，核对名义金额和交割日"],
+      ["存续运营", "跟踪观察日、敲出、敲入、票息、提前赎回、到期和实物交割。官方水平以计算代理人的确认为准"]
+    ]}] },
+  { id: "control", cat: "desk", name: "合规与收入", title: "合规与收入",
+    body: ["这一组看风险、限额和分销收入，不代替销售去新建询价。"],
+    tables: [{ heads: ["岗位", "干什么"], rows: [
+      ["合规", "销售适当性、跨境和复杂产品审批，可以关闭一笔不合规的单。不改价格"],
+      ["信用与限额", "发行商授信、买方名义本金、单一标的集中度、每日询价限额。超限的单在这里停住"],
+      ["收入 / 财务", "看 UF、毛利、返佣和月结。需要内部价，不参与报价"]
+    ]}] },
+  { id: "admin", cat: "desk", name: "产品与管理", title: "产品与管理",
+    tables: [{ heads: ["岗位", "干什么"], rows: [
+      ["结构 / 产品", "维护产品参数和产品定义，决定哪款产品对哪类机构开放。不负责逐笔接单"],
+      ["管理层", "只读全平台或本部门的询价、成交和存续"],
+      ["平台管理员", "开用户、复制岗位授权，开通一家机构能用哪些产品、发行商和托管行"]
+    ]}] },
+  { id: "issuer-form", cat: "issuer", name: "谁在出票", title: "谁在出票",
+    body: ["发行商是出票的银行。一张询价可以同时发给多家，每家只看见发给自己的条款和规模区间，对手方显示分销台。终端客户默认不出现；询价标明可以披露时，才显示终端客户名称。"],
+    tables: [{ heads: ["机构形态", "说明"], rows: [
+      ["投行或商业银行的结构产品台", "最常见的出票方。销售报价，交易台定价，运营负责 ISIN 和交割"],
+      ["私人银行的发行主体", "有的私人银行既分销也自己出票。出票的人用发行商入口，行内 RM 仍用买方入口"],
+      ["安排行背后的发行载体", "票据法律上由 SPV 发行。登录的是安排行，SPV 本身没有用户"]
+    ]}] },
+  { id: "issuer-seat", cat: "issuer", name: "岗位", title: "发行商岗位",
+    tables: [{ heads: ["岗位", "干什么"], rows: [
+      ["报价员", "处理收件箱：回价、改价、拒绝、超时。成交后看自己是发行商的那笔交易"],
+      ["定价交易员", "在行内系统算价。有平台账号时也只看见发给本行的询价"],
+      ["发行运营", "分配 ISIN、Valoren，确认发行日、交割和付款路径"],
+      ["计算代理人", "给出敲出、票息、到期的官方结果。只有这张票据写明由这家发行商担任计算代理人，才能看对应存续"],
+      ["发行商管理员", "管本行用户，以及 Last Look、自动回复一类报价参数"],
+      ["发行商合规", "决定某类买方或某个标的本行接不接，不看分销台的客户账本"]
+    ]}] },
+  { id: "party", cat: "off", name: "客户与托管", title: "客户与托管",
+    body: ["这些人决定票据记在谁名下、放在哪里，系统里留资料和通知，不发登录账号。"],
+    tables: [{ heads: ["角色", "为什么出现", "系统里怎么待"], rows: [
+      ["终端投资人 End Client", "EAM、私人银行、券商真正要服务的那个人或那只基金", "订单和持仓上的当事人，用于适当性和客户报表。某位专业投资者要自己下单时，开成一家只有他一个人的签约机构"],
+      ["托管行", "票据和交割来的股票放在这里。私人银行托管、券商托管，或瑞士、新加坡的独立托管", "主数据里的机构和联系人。下单和存续通知可以抄送他们"]
+    ]}] },
+  { id: "agent", cat: "off", name: "代理人与专业人士", title: "代理人与专业人士",
+    tables: [{ heads: ["角色", "为什么出现", "系统里怎么待"], rows: [
+      ["外部介绍人 IB", "把客户介绍给券商或 EAM，自己不管理账户", "不登录。收入计算里记他的介绍费"],
+      ["支付代理人、发行代理人", "按发行文件付票息、兑付本金", "交割信息写在交易上"],
+      ["律师、审计", "发行文件、适当性检查、收入核对", "需要材料时由合规或财务导出"]
+    ]}] }
+];
+
+let cat = "overview";
+
+function pagesIn(id) { return PAGES.filter((item) => item.cat === id); }
+
+function renderCats() {
+  const bar = document.getElementById("cat-tabs");
+  bar.replaceChildren();
+  CATS.forEach(([id, label]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", String(id === cat));
+    button.textContent = label;
+    button.addEventListener("click", () => {
+      cat = id;
+      render();
+    });
+    bar.appendChild(button);
+  });
+}
+
+function addTable(parent, spec) {
+  if (spec.caption) {
+    const p = document.createElement("p");
+    p.textContent = spec.caption;
+    parent.appendChild(p);
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "table-wrap";
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  spec.heads.forEach((text) => {
+    const th = document.createElement("th");
+    th.textContent = text;
+    headRow.appendChild(th);
+  });
+  thead.appendChild(headRow);
+  const tbody = document.createElement("tbody");
+  spec.rows.forEach((row) => {
+    const tr = document.createElement("tr");
+    row.forEach((text) => {
+      const td = document.createElement("td");
+      td.textContent = text;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.append(thead, tbody);
+  wrap.appendChild(table);
+  parent.appendChild(wrap);
+}
+
+function renderSection(item) {
+  const section = document.createElement("section");
+  const heading = document.createElement("h2");
+  heading.textContent = item.title;
+  section.appendChild(heading);
+  (item.body || []).forEach((text) => {
+    const p = document.createElement("p");
+    p.textContent = text;
+    section.appendChild(p);
+  });
+  if (item.cards) {
+    const grid = document.createElement("div");
+    grid.className = "cards";
+    item.cards.forEach(([id, title, text]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      const strong = document.createElement("strong");
+      strong.textContent = title;
+      const span = document.createElement("span");
+      span.textContent = text;
+      button.append(strong, span);
+      button.addEventListener("click", () => {
+        cat = id;
+        render();
+      });
+      grid.appendChild(button);
+    });
+    section.appendChild(grid);
+  }
+  if (item.steps) {
+    const list = document.createElement("ol");
+    list.className = "steps";
+    item.steps.forEach((text) => {
+      const li = document.createElement("li");
+      li.textContent = text;
+      list.appendChild(li);
+    });
+    section.appendChild(list);
+  }
+  (item.tables || []).forEach((spec) => addTable(section, spec));
+  return section;
+}
+
+function renderPanel() {
+  const panel = document.getElementById("panel");
+  panel.replaceChildren();
+  pagesIn(cat).forEach((item) => panel.appendChild(renderSection(item)));
+}
+
+function render() {
+  renderCats();
+  renderPanel();
+  history.replaceState(null, "", "#" + cat);
+}
+
+const fromHash = location.hash.replace("#", "");
+const matchedPage = PAGES.find((item) => item.id === fromHash);
+if (CATS.some(([id]) => id === fromHash)) cat = fromHash;
+else if (matchedPage) cat = matchedPage.cat;
+render();
+  </script>
+</body>
+</html>

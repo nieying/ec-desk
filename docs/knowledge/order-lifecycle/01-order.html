@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>订单</title>
+  <style>html { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f4f1ea; color: #1c1915; font: 16px/1.65 "Iowan Old Style", Palatino, "Songti SC", "Source Han Serif SC", serif; }
+.layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+nav { position: sticky; top: 0; align-self: start; height: 100vh; overflow: auto; padding: 28px 18px 40px; background: #1c1915; color: #f6f1e8; }
+nav a { color: inherit; text-decoration: none; }
+nav .brand { display: block; margin-bottom: 22px; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #d7c4a3; }
+nav h2 { margin: 18px 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #a89880; font-weight: 600; }
+nav ul { list-style: none; margin: 0; padding: 0; }
+nav li a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 14px; line-height: 1.4; }
+nav li a:hover, nav li a.current { background: #3a332b; }
+main { padding: 42px 7vw 80px; max-width: 1080px; }
+article h1 { margin: 0 0 18px; font-size: 36px; line-height: 1.2; }
+article h2 { margin: 34px 0 12px; padding-top: 8px; font-size: 22px; border-top: 1px solid #e4d9c8; }
+article h3 { margin: 24px 0 8px; font-size: 18px; }
+article p { margin: 0 0 12px; }
+article ul, article ol { margin: 0 0 14px; padding-left: 1.3em; }
+article li { margin: 4px 0; }
+article a { color: #0e6b5c; }
+code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.88em; background: #efe6d6; padding: 0 4px; border-radius: 4px; }
+.table-wrap { overflow: auto; margin: 0 0 18px; border: 1px solid #e4d9c8; border-radius: 10px; background: #fffdf8; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.45; }
+th, td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid #efe6d6; }
+th { background: #1c1915; color: #f6f1e8; font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.mermaid { margin: 8px 0 18px; background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px; padding: 12px; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  nav { position: relative; height: auto; }
+  main { padding: 28px 18px 64px; }
+}</style>
+</head>
+<body>
+  <div class="layout">
+    <nav><a class="brand" href="../../index.html">EasyConnect 文档</a><h2>知识库</h2><ul><li><a href="../01-user-roles.html">用户角色</a></li><li><a href="../02-product-parameters.html">产品参数</a></li><li><a href="../03-product-definitions.html">产品定义</a></li><li><a href="../quotation/01-background.html">询价</a></li><li><a class="current" href="01-order.html">订单</a></li><li><a href="02-lifecycle.html">存续</a></li></ul></nav>
+    <main><article>
+      <h1>订单</h1>
+      <p>订单是买方接受某一家对客价之后的承诺。询价到释放报价为止，见 <a href="../quotation/01-background.html">询价</a>。起息之后的观察、票息、敲出和到期，见 <a href="02-lifecycle.html">存续</a>。谁能下单、谁能审批，见 <a href="../01-user-roles.html">用户角色</a>。</p>
+
+      <h2>从接受报价到起息</h2>
+      <pre class="mermaid">flowchart TD
+  pick[买方选中一家已释放的对客价] --> size[写下名义金额和终端客户]
+  size --> approve{这笔要不要内部审批}
+  approve -->|要| gate{审批人是否通过}
+  gate -->|否决| stop1[没有订单]
+  gate -->|通过| look[发行商按当下市场做最后确认]
+  approve -->|不要| look
+  look --> result{确认结果}
+  result -->|拒绝| stop2[没有持仓]
+  result -->|价格变了| reprice[重报一档对客价，买方重新决定]
+  reprice --> pick
+  result -->|确认成交| lock[发行商、条款、对客价、名义金额锁定]
+  lock --> settle[运营发出成交确认和托管指令]
+  settle --> live[到起息日，持仓交给存续]</pre>
+      <p>一笔询价通常落成一家发行商的一张订单。买方看见的是已经加上 UF 的对客价。发行商最后确认时，市场若已经走开，可以重报，也可以拒绝。重报等于一档新的对客价，买方要重新接受。审批人可以否决这笔订单，不改价格。</p>
+      <p>成交当时锁定的是商业条款。观察日的敲出、敲入和票息还不存在，那些等计算代理人在存续里逐次确认。运营在成交后核对名义金额、交割日、托管账户，把资金或日后可能交来的股票落到终端客户名下。</p>
+
+      <h2>一张订单上有什么</h2>
+      <div class="table-wrap"><table><thead><tr><th>锁定的内容</th><th>业务含义</th></tr></thead><tbody>
+        <tr><td>产品和全部条款</td><td>标的、期限、敲出、敲入、执行价、求解出来的那个数。成交后不再改结构</td></tr>
+        <tr><td>发行商</td><td>出票的那一家。其他家的报价不再使用</td></tr>
+        <tr><td>对客价</td><td>买方实际买入价。票据是票面价或发行价，AQ / DQ 是执行价加上已经谈妥的 UF</td></tr>
+        <tr><td>名义金额或每日股数</td><td>票据写名义本金。累计期权写每天买卖多少股，杠杆日按倍数放大</td></tr>
+        <tr><td>终端客户和托管行</td><td>钱和股票落在谁的账户。买方机构是下单的人，终端客户是这笔头寸的主人</td></tr>
+      </tbody></table></div>
+
+      <h2>订单从哪来</h2>
+      <div class="table-wrap"><table><thead><tr><th>来源</th><th>条款从哪来</th><th>之后怎么进存续</th></tr></thead><tbody>
+        <tr><td>询价接受</td><td>买方接受分销台释放的某一家对客价</td><td>成交并起息后，按这套条款开始观察</td></tr>
+        <tr><td>外面已经谈妥</td><td>电话或邮件里条款和价格都定了，再记进订单</td><td>同样从起息开始。少了一次系统里的多家比价</td></tr>
+        <tr><td>已发行票据再卖出</td><td>条款和 ISIN 来自一张已经在存续中的票据</td><td>买方买的是剩余期限，观察日接着原来的日历走，不重新询一个求解项</td></tr>
+      </tbody></table></div>
+      <p>成交之后，交易台不再改这张单的价格。存续运营跟踪观察日，收入岗位按这笔 UF 和返佣记账。官方敲出水平和票息金额以发行商担任的计算代理人为准。</p>
+    </article></main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'neutral', securityLevel: 'loose'});</script>
+</body>
+</html>

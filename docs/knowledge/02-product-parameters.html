@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>产品参数</title>
+  <style>html { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f4f1ea; color: #1c1915; font: 16px/1.65 "Iowan Old Style", Palatino, "Songti SC", "Source Han Serif SC", serif; }
+.layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+nav { position: sticky; top: 0; align-self: start; height: 100vh; overflow: auto; padding: 28px 18px 40px; background: #1c1915; color: #f6f1e8; }
+nav a { color: inherit; text-decoration: none; }
+nav .brand { display: block; margin-bottom: 22px; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #d7c4a3; }
+nav h2 { margin: 18px 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #a89880; font-weight: 600; }
+nav ul { list-style: none; margin: 0; padding: 0; }
+nav li a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 14px; line-height: 1.4; }
+nav li a:hover, nav li a.current { background: #3a332b; }
+main { padding: 42px 7vw 80px; max-width: 1080px; }
+article h1 { margin: 0 0 18px; font-size: 36px; line-height: 1.2; }
+article h2 { margin: 34px 0 12px; padding-top: 8px; font-size: 22px; border-top: 1px solid #e4d9c8; }
+article h3 { margin: 24px 0 8px; font-size: 18px; }
+article p { margin: 0 0 12px; }
+article ul, article ol { margin: 0 0 14px; padding-left: 1.3em; }
+article li { margin: 4px 0; }
+article a { color: #0e6b5c; }
+code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.88em; background: #efe6d6; padding: 0 4px; border-radius: 4px; }
+.code { margin: 0 0 16px; background: #241f1a; color: #f6f1e8; border-radius: 10px; overflow: auto; }
+.code-label { padding: 8px 14px 0; font: 12px/1 ui-monospace, monospace; color: #d7c4a3; }
+.code pre { margin: 0; padding: 12px 14px 14px; }
+.code code { background: transparent; color: inherit; padding: 0; }
+.table-wrap { overflow: auto; margin: 0 0 18px; border: 1px solid #e4d9c8; border-radius: 10px; background: #fffdf8; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.45; }
+th, td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid #efe6d6; }
+th { background: #1c1915; color: #f6f1e8; font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.mermaid { margin: 8px 0 18px; background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px; padding: 12px; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  nav { position: relative; height: auto; }
+  main { padding: 28px 18px 64px; }
+}</style>
+</head>
+<body>
+  <div class="layout">
+    <nav><a class="brand" href="../index.html">EasyConnect 文档</a><h2>知识库</h2><ul><li><a href="01-user-roles.html">用户角色</a></li><li><a class="current" href="02-product-parameters.html">产品参数</a></li><li><a href="03-product-definitions.html">产品定义</a></li><li><a href="quotation/01-background.html">询价</a></li><li><a href="order-lifecycle/01-order.html">订单</a></li><li><a href="order-lifecycle/02-lifecycle.html">存续</a></li></ul></nav>
+    <main><article><h1>产品参数</h1>
+<p>当前系统做的是票据行业的结构化产品。一个产品不是写死的表单，而是一组参数。询价、交易、存续用的是同一批参数，差别只在这个场景要不要展示、要不要必填。</p>
+<p>材料：<code>ec-web/utils/jsonSchema/params.js</code>、<code>productRules.js</code>、<code>const.js</code>、<code>rules.js</code>。</p>
+<h2>三层</h2>
+<pre class="mermaid">flowchart TB
+  atom[&quot;参数原子 params.js&quot;]
+  product[&quot;产品 = 从原子里挑选并排序&quot;]
+  scene[&quot;场景 = 同一批原子上的显隐和必填&quot;]
+  atom --&gt; product
+  product --&gt; scene
+  scene --&gt; quotation[&quot;询价&quot;]
+  scene --&gt; trade[&quot;交易&quot;]
+  scene --&gt; lifecycle[&quot;存续&quot;]</pre>
+<ol><li><strong>参数原子</strong>。每个字段一份定义：叫什么、什么类型、可选枚举、单位、校验。产品不拥有字段定义。</li><li><strong>产品</strong>。只声明自己用哪些原子、顺序、哪些必填。FCN 和 AQ 的差别是挑选结果不同，不是各写一套 Strike。</li><li><strong>场景</strong>。询价、每日、交易、存续、组合、AI 不复制字段。必填标记挂在产品规则的字段名后面：<code>~</code> 询价，<code>!</code> 每日，<code>@</code> 交易（Tap On 发布条款用同一套），<code>#</code> 存续，<code>%</code> 组合，<code>^</code> AI。例如 <code>notePrice#</code> 表示存续必填。</li></ol>
+<p>字段上的 <code>sences</code> 是另一层过滤：写 <code>quotationDetail,trade,lifecycle</code> 表示只在这些场景出现；写 <code>!quotation</code> 表示询价里不出现。</p>
+<h2>原子长什么样</h2>
+<p><code>params.js</code> 文件头约定的属性，就是以后自定义参数要保留的最小集合。</p>
+<div class="table-wrap"><table><thead><tr><th>属性</th><th>作用</th></tr></thead><tbody><tr><td><code>key</code></td><td>身份。`前端名\</td><td>后台名<code> 仍是同一个原子，例如 </code>ki\</td><td>kiBarrier<code>、</code>couponPA\</td><td>coupon`</td></tr><tr><td><code>type</code></td><td><code>string</code>、<code>number</code>、<code>array</code>、<code>object</code></td></tr><tr><td><code>title</code></td><td>显示名</td></tr><tr><td><code>enum</code> / <code>enumList</code></td><td>可选值，以及下拉文案。没有 <code>enumList</code> 时直接显示 <code>enum</code></td></tr><tr><td><code>pattern</code></td><td>校验。现有：两位小数、四位小数、正整数、日期</td></tr><tr><td><code>suffix</code></td><td>单位，<code>%</code>、<code>m</code>、<code>bp</code></td></tr><tr><td><code>default</code></td><td>默认值</td></tr><tr><td><code>component</code></td><td>少数字段用自定义控件：标的、发行商</td></tr><tr><td><code>maxItems</code> / <code>minItems</code> / <code>uniqueItems</code></td><td>多选。标的最多 4 个、至少 1 个</td></tr><tr><td><code>sences</code></td><td>哪些场景可见</td></tr></tbody></table></div>
+<p>联动不写进原子。<code>rules.js</code> 单独描述原子之间的约束，例如障碍类型是 NONE 时敲入价不必填，Normal 时杠杆不必填，方向决定要上障碍还是下障碍。</p>
+<h2>参数分类</h2>
+<p>下面按业务含义归类，不是按产品拆。带枚举的是可配置选项，其余是数值、日期或文本。</p>
+<h3>标的与方向</h3>
+<div class="table-wrap"><table><thead><tr><th>原子</th><th>类型</th><th>枚举或约束</th></tr></thead><tbody><tr><td>product</td><td>number</td><td>见下一节产品清单</td></tr><tr><td>underlying</td><td>array</td><td>自定义控件，1 到 4 个</td></tr><tr><td>currency</td><td>string</td><td>USD、HKD、AUD、CAD、JPY、EUR、NZD、SGD、CHF、GBP、CNH，默认 USD</td></tr><tr><td>direction</td><td>string</td><td>TwinWin、Bullish、Bearish</td></tr><tr><td>optionType</td><td>number</td><td>Call、Put</td></tr><tr><td>format</td><td>string</td><td>Warrant、Note，默认 Note</td></tr></tbody></table></div>
+<h3>期限与日期</h3>
+<div class="table-wrap"><table><thead><tr><th>原子</th><th>类型</th><th>枚举或约束</th></tr></thead><tbody><tr><td>tenor</td><td>string</td><td>正整数，单位月，默认 6</td></tr><tr><td>guaranteedPeriods</td><td>string</td><td>0–12 月，以及 2w–12w、1m、2m，默认 0</td></tr><tr><td>observationFrequency</td><td>string</td><td>1、2、3、6、12 月，默认 1</td></tr><tr><td>effectiveDateOffset</td><td>string</td><td>10、5，默认 10</td></tr><tr><td>couponPaymentFrequency</td><td>string</td><td>1、3、6、12 月，以及 At Maturity</td></tr><tr><td>callableFrequency</td><td>string</td><td>1、3、6、12 月，默认 3</td></tr><tr><td>settlementFrequency</td><td>string</td><td>Biweekly、Monthly，默认 Biweekly</td></tr><tr><td>nonCallPeriod</td><td>string</td><td>正整数，单位月</td></tr><tr><td>guaranteedDays / investmentDays / totalDays</td><td>string</td><td>正整数，单位天</td></tr><tr><td>issueDate / finalValuationDate / maturityDate</td><td>string</td><td>日期</td></tr></tbody></table></div>
+<h3>敲出与敲入</h3>
+<div class="table-wrap"><table><thead><tr><th>原子</th><th>类型</th><th>枚举或约束</th></tr></thead><tbody><tr><td>koType</td><td>string</td><td>Period End、Period End Memory、Daily、Daily Memory</td></tr><tr><td>ko</td><td>string</td><td>百分比，默认 100。后台名 <code>koBarrier</code></td></tr><tr><td>koStepdown</td><td>string</td><td>百分比，默认 2。后台名 <code>monthlyKoStepDown</code></td></tr><tr><td>koSettlementCycle</td><td>string</td><td>目前枚举只有 Yes</td></tr><tr><td>kiType</td><td>string</td><td>NONE、AKI、EKI。后台名 <code>barrierType</code></td></tr><tr><td>ki</td><td>string</td><td>百分比。后台名 <code>kiBarrier</code></td></tr><tr><td>couponKoType</td><td>number</td><td>European、American。后台名 <code>exercise</code></td></tr><tr><td>couponBarrier / upperBarrier / lowerBarrier</td><td>string</td><td>百分比</td></tr></tbody></table></div>
+<h3>票息与收益</h3>
+<div class="table-wrap"><table><thead><tr><th>原子</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td>couponPA</td><td>string</td><td>年化票息，百分比。后台名 <code>coupon</code></td></tr><tr><td>conditionalCouponPA</td><td>string</td><td>条件年化票息，后台名也是 <code>coupon</code></td></tr><tr><td>couponType</td><td>number</td><td>Memory、Non-Memory</td></tr><tr><td>bonus / cashRebate / yieldPA / capCoupon / floorCoupon</td><td>string</td><td>百分比</td></tr><tr><td>couponReturn</td><td>string</td><td>百分比，只在存续列表出现</td></tr><tr><td>condition</td><td>string</td><td>Capped、Floored、Capped Floored、Fixed Rate、Floating Rate</td></tr><tr><td>fixedRatePA</td><td>string</td><td>固定利率，后台名 <code>protectionRate</code></td></tr><tr><td>spreadPA</td><td>string</td><td>点差，后台名 <code>spreadPercentage</code></td></tr><tr><td>minimumReturn</td><td>string</td><td>Yes、No</td></tr><tr><td>participationRate</td><td>string</td><td>参与率，默认 100%。后台名 <code>participation</code></td></tr><tr><td>principalProtection</td><td>string</td><td>本金保障，默认 100%</td></tr></tbody></table></div>
+<p><code>coupon</code> 这个原子和 <code>couponPA</code> 标题重复，产品规则里没有选用它。</p>
+<h3>价格与费用</h3>
+<div class="table-wrap"><table><thead><tr><th>原子</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td>strike</td><td>string</td><td>执行价，百分比，默认 100</td></tr><tr><td>notePrice</td><td>string</td><td>票面价格，百分比，默认 99</td></tr><tr><td>nakedNotePrice</td><td>number</td><td>票面裸价。类型是 number，因为后台是 double</td></tr><tr><td>issuePrice</td><td>string</td><td>发行价，默认 99</td></tr><tr><td>uf</td><td>string</td><td>百分比</td></tr><tr><td>userUf</td><td>number</td><td>单位 bp，带 <code>isCredit</code></td></tr><tr><td>grossMargin</td><td>string</td><td>对客毛利，只在询价创建和详情</td></tr><tr><td>bidPrice / offerPrice</td><td>string</td><td>百分比</td></tr><tr><td>userBidPrice / userOfferPrice / userPremium</td><td>number 或 string</td><td>带信用加点，创建询价时不展示</td></tr></tbody></table></div>
+<h3>杠杆、行权与结算</h3>
+<div class="table-wrap"><table><thead><tr><th>原子</th><th>类型</th><th>枚举</th></tr></thead><tbody><tr><td>normalLeveraged</td><td>string</td><td>Normal、Leveraged，默认 Leveraged</td></tr><tr><td>leverage</td><td>string</td><td>150%、200%，默认 200。后台名 <code>leverageLevel</code></td></tr><tr><td>exercise</td><td>number</td><td>European、American</td></tr><tr><td>settlementType</td><td>number</td><td>Cash、Physical</td></tr><tr><td>issuerCallability</td><td>string</td><td>Yes、No</td></tr><tr><td>nonCall</td><td>string</td><td>yes、no，开关</td></tr></tbody></table></div>
+<h3>规模与发行标识</h3>
+<div class="table-wrap"><table><thead><tr><th>原子</th><th>说明</th></tr></thead><tbody><tr><td>size / denomination / sharesPerDay</td><td>规模、面值、每日股数。现网主要出现在 AI 场景</td></tr><tr><td>minMaxSize</td><td>最小/最大规模。只在全量导出模板里，没有挂到具体产品</td></tr><tr><td>isin / valoren</td><td>发行编码。询价和 Tap On 发布里不展示。Valoren 限 6–9 位</td></tr><tr><td>issuer</td><td>发行商，自定义控件。询价表单里不走这个字段</td></tr><tr><td>issuerQuoteId / allIssuersPrices / tags</td><td>报价标识和标签，只在导出模板 <code>product_0</code> 里</td></tr></tbody></table></div>
+<h2>产品大类</h2>
+<p>大类是 Notes、OTC、Other。具体产品是大类下面的一种参数组合。编号是现网 <code>product</code> 枚举，和后台 ProductType 一致。每款产品的定义、字段在该产品里的角色和业务背景见 <a href="03-product-definitions.html">产品定义</a>。</p>
+<h3>Notes</h3>
+<p>Credit Charge 把下面 9 个称为 Structured Notes：FCN、Step-down FCN、Sharkfin、BEN、DCN、ELN、WRA、Step-down SCN、Phoenix。</p>
+<div class="table-wrap"><table><thead><tr><th>编号</th><th>产品</th><th>相对 FCN 多出来或换掉的原子</th></tr></thead><tbody><tr><td>1</td><td>FCN</td><td>基准：标的、期限、观察频率、执行价、敲出类型、敲出、年化票息、票面价、障碍类型</td></tr><tr><td>5</td><td>Step-down FCN</td><td>增加敲出递减 <code>koStepdown</code></td></tr><tr><td>2</td><td>BEN</td><td>用 Bonus 替换年化票息和敲出类型</td></tr><tr><td>9</td><td>DCN</td><td>与 BEN 同一组原子</td></tr><tr><td>3</td><td>ELN</td><td>发行价、年化收益、发行日、最终定价日、到期日；没有障碍类型</td></tr><tr><td>4</td><td>WRA</td><td>与 FCN 同一组，必填里多了生效日偏移</td></tr><tr><td>8</td><td>Step-down SCN</td><td>杠杆、Non-Call、敲出递减、条件票息</td></tr><tr><td>11</td><td>Phoenix</td><td>票息类型、票息障碍、条件票息、敲出递减</td></tr><tr><td>12</td><td>Sharkfin</td><td>方向、上下障碍、现金返还、最低收益、本金保障、参与率、Format</td></tr></tbody></table></div>
+<h3>OTC</h3>
+<p>现网 OTC 模板和信用加点规则把 AQ、DQ、VAN 放在一起。<code>isOtcProduct</code> 只认 AQ、DQ，VAN 那行被注释掉了。大类仍按 OTC 放 VAN，这是和代码里那个函数的唯一不一致。</p>
+<div class="table-wrap"><table><thead><tr><th>编号</th><th>产品</th><th>这组独有的原子</th></tr></thead><tbody><tr><td>6</td><td>AQ</td><td>Normal/Leveraged、结算频率、敲出结算周期、保证天数、总天数、每日股数、User UF（bp）</td></tr><tr><td>7</td><td>DQ</td><td>与 AQ 同一组</td></tr><tr><td>10</td><td>VAN</td><td>期权类型 Call/Put、买卖价、行权 European/American、结算现金或实物、客户权利金</td></tr></tbody></table></div>
+<p>AQ/DQ 的标的在产品规则里没有改 <code>maxItems</code>，原子定义仍是最多 4 个。</p>
+<h3>Other</h3>
+<p>不在上面两份名单里、但已经有参数组合的产品。<code>product-type.js</code> 把其中一部分叫 non-flow。</p>
+<div class="table-wrap"><table><thead><tr><th>编号</th><th>产品</th><th>特征原子</th></tr></thead><tbody><tr><td>13</td><td>Performance Participation</td><td>方向、封顶票息、本金保障、参与率、Format</td></tr><tr><td>14</td><td>Skyline</td><td>方向、上下障碍、封顶/保底票息、本金保障</td></tr><tr><td>15</td><td>Floater</td><td>发行商可赎回、不可赎回期、赎回频率、利率条件、付息频率</td></tr><tr><td>16</td><td>Vanilla Bond</td><td>利率条件、固定利率、点差、可赎回、付息频率</td></tr></tbody></table></div>
+<p>代码里还有 CLN、Autocall Booster、Booster、DRAN、DRACLN、Leveraged Steepener、Tracker Certificate，以及名为 Structured Notes(Others) 的类型。它们没有进 <code>params.js</code> 的产品枚举，也没有 <code>productRules</code>。先归在 Other，参数组合还没有。</p>
+<h2>场景怎么用同一批参数</h2>
+<div class="table-wrap"><table><thead><tr><th>场景</th><th>现网可选产品</th></tr></thead><tbody><tr><td>询价</td><td>Notes 除 Sharkfin，加 OTC 全部。即 1、5、2、9、3、4、8、11、6、7、10</td></tr><tr><td>每日询价</td><td>询价名单去掉 Phoenix 和 VAN</td></tr><tr><td>交易</td><td>询价名单，再加 Other 全部和 Sharkfin</td></tr><tr><td>存续</td><td>1、5、2、3、6、7、8、12、13、14</td></tr><tr><td>Tap On 发布条款</td><td>与交易相同的必填符号，产品是 Notes 为主：1、5、2、9、3、4、8、11、12</td></tr><tr><td>组合</td><td>1、5、2、3、4、8</td></tr><tr><td>AI</td><td>1、6、7、2、5、8</td></tr></tbody></table></div>
+<p>所以询价、交易、存续不是三套字段，而是同一本原子字典上的三个视图。</p></article></main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'neutral', securityLevel: 'loose'});</script>
+</body>
+</html>

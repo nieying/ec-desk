@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>产品定义</title>
+  <style>html { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f4f1ea; color: #1c1915; font: 16px/1.65 "Iowan Old Style", Palatino, "Songti SC", "Source Han Serif SC", serif; }
+.layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+nav { position: sticky; top: 0; align-self: start; height: 100vh; overflow: auto; padding: 28px 18px 40px; background: #1c1915; color: #f6f1e8; }
+nav a { color: inherit; text-decoration: none; }
+nav .brand { display: block; margin-bottom: 22px; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #d7c4a3; }
+nav h2 { margin: 18px 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #a89880; font-weight: 600; }
+nav ul { list-style: none; margin: 0; padding: 0; }
+nav li a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 14px; line-height: 1.4; }
+nav li a:hover, nav li a.current { background: #3a332b; }
+main { padding: 42px 7vw 80px; max-width: 1080px; }
+article h1 { margin: 0 0 18px; font-size: 36px; line-height: 1.2; }
+article h2 { margin: 34px 0 12px; padding-top: 8px; font-size: 22px; border-top: 1px solid #e4d9c8; }
+article h3 { margin: 24px 0 8px; font-size: 18px; }
+article p { margin: 0 0 12px; }
+article ul, article ol { margin: 0 0 14px; padding-left: 1.3em; }
+article li { margin: 4px 0; }
+article a { color: #0e6b5c; }
+code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.88em; background: #efe6d6; padding: 0 4px; border-radius: 4px; }
+.code { margin: 0 0 16px; background: #241f1a; color: #f6f1e8; border-radius: 10px; overflow: auto; }
+.code-label { padding: 8px 14px 0; font: 12px/1 ui-monospace, monospace; color: #d7c4a3; }
+.code pre { margin: 0; padding: 12px 14px 14px; }
+.code code { background: transparent; color: inherit; padding: 0; }
+.table-wrap { overflow: auto; margin: 0 0 18px; border: 1px solid #e4d9c8; border-radius: 10px; background: #fffdf8; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.45; }
+th, td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid #efe6d6; }
+th { background: #1c1915; color: #f6f1e8; font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.mermaid { margin: 8px 0 18px; background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px; padding: 12px; }
+.cat-tabs, .prod-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.cat-tabs button, .prod-tabs button, .detail-btn, .drawer-close {
+  font: inherit; cursor: pointer; border: 1px solid #e4d9c8; background: #fffdf8; color: #1c1915;
+}
+.cat-tabs button { padding: 7px 14px; border-radius: 999px; font-size: 14px; }
+.prod-tabs { margin-bottom: 22px; }
+.prod-tabs button { padding: 6px 10px; border-radius: 8px; font-size: 13px; line-height: 1.35; }
+.cat-tabs button[aria-selected="true"], .prod-tabs button[aria-selected="true"] {
+  background: #1c1915; color: #f6f1e8; border-color: #1c1915;
+}
+.brief h1 { margin-bottom: 6px; }
+.kicker { margin: 0 0 16px; color: #6d6256; font-size: 14px; letter-spacing: 0.04em; }
+.solve { margin: 0 0 18px; padding: 10px 14px; background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px; }
+.field-list { margin: 0; border: 1px solid #e4d9c8; border-radius: 10px; overflow: hidden; background: #fffdf8; }
+.field-list button {
+  display: grid; grid-template-columns: 148px 168px 1fr auto; gap: 12px; align-items: center;
+  width: 100%; padding: 11px 14px; border: 0; border-bottom: 1px solid #efe6d6; border-radius: 0;
+  background: transparent; text-align: left; font: inherit; cursor: pointer;
+}
+.field-list button:last-child { border-bottom: 0; }
+.field-list button:hover, .field-list button[aria-current="true"] { background: #f4efe6; }
+.field-list .fname { font-weight: 600; }
+.field-list .hint { color: #0e6b5c; font-size: 13px; white-space: nowrap; }
+.empty-fields { margin: 0; padding: 14px; color: #6d6256; }
+.backdrop { position: fixed; inset: 0; background: rgba(28, 25, 21, 0.35); z-index: 30; }
+.drawer {
+  position: fixed; top: 0; right: 0; z-index: 31; width: min(520px, 100vw); height: 100vh;
+  background: #f6f1e8; color: #1c1915; box-shadow: -12px 0 40px rgba(28, 25, 21, 0.18);
+  display: flex; flex-direction: column;
+}
+.drawer header {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  padding: 18px 18px 12px; border-bottom: 1px solid #e4d9c8; background: #fffdf8;
+}
+.drawer header h2 { margin: 0; font-size: 18px; border: 0; padding: 0; }
+.drawer header p { margin: 4px 0 0; color: #6d6256; font-size: 13px; }
+.drawer-close { padding: 4px 10px; border-radius: 8px; }
+.drawer-body { overflow: auto; padding: 14px 18px 28px; }
+.field-card { margin: 0 0 10px; padding: 12px 12px 10px; background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px; }
+.field-card h3 { margin: 0 0 4px; font-size: 16px; }
+.field-card .key { margin: 0 0 8px; }
+.tag { display: inline-block; margin-left: 8px; padding: 0 6px; border-radius: 999px; background: #efe6d6; font-size: 12px; font-weight: 600; vertical-align: 1px; }
+.enum-list { margin: 8px 0 0; padding: 0; list-style: none; }
+.enum-list li { display: grid; grid-template-columns: 148px 1fr; gap: 8px; padding: 5px 0; border-top: 1px solid #efe6d6; font-size: 14px; }
+.enum-list code { align-self: start; }
+[hidden] { display: none !important; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  nav { position: relative; height: auto; }
+  main { padding: 28px 18px 64px; }
+  .enum-list li { grid-template-columns: 1fr; gap: 2px; }
+  .field-list button { grid-template-columns: 1fr auto; }
+  .field-list .key, .field-list .role { grid-column: 1 / -1; }
+}</style>
+</head>
+<body>
+  <div class="layout">
+    <nav><a class="brand" href="../index.html">EasyConnect 文档</a><h2>知识库</h2><ul><li><a href="01-user-roles.html">用户角色</a></li><li><a href="02-product-parameters.html">产品参数</a></li><li><a class="current" href="03-product-definitions.html">产品定义</a></li><li><a href="quotation/01-background.html">询价</a></li><li><a href="order-lifecycle/01-order.html">订单</a></li><li><a href="order-lifecycle/02-lifecycle.html">存续</a></li></ul></nav>
+    <main><article>
+      <div class="cat-tabs" id="cat-tabs" role="tablist" aria-label="产品大类"></div>
+      <div class="prod-tabs" id="prod-tabs" role="tablist" aria-label="产品"></div>
+      <section class="brief">
+        <p class="kicker" id="kicker"></p>
+        <h1 id="title"></h1>
+        <div id="body"></div>
+        <p class="solve" id="solve" hidden></p>
+        <h2>字段</h2>
+        <div class="field-list" id="field-list"></div>
+      </section>
+    </article></main>
+  </div>
+  <div class="backdrop" id="backdrop" hidden></div>
+  <aside class="drawer" id="drawer" hidden aria-labelledby="drawer-title">
+    <header>
+      <div>
+        <h2 id="drawer-title">字段讲解</h2>
+        <p id="drawer-sub"></p>
+      </div>
+      <button class="drawer-close" id="close-detail" type="button">关闭</button>
+    </header>
+    <div class="drawer-body" id="drawer-body"></div>
+  </aside>
+  <script>
+const FIELDS = {
+  product: { name: "产品", meaning: "这一条条款属于哪款产品。编号和后台 ProductType 一致。", enums: [
+    ["1", "FCN 固定票息票据"], ["2", "BEN 收益增强票据"], ["3", "ELN 股票挂钩票据"], ["4", "WRA 区间票息票据"],
+    ["5", "Step-down FCN 敲出价递减型固定派息票据"], ["6", "AQ 累计期权"], ["7", "DQ 累沽期权"], ["8", "Step-down SCN 敲出价递减型雪球票据"],
+    ["9", "DCN 红利票据"], ["10", "VAN 普通期权"], ["11", "Phoenix 凤凰票据"], ["12", "Sharkfin 鲨鱼鳍票据"],
+    ["13", "Performance Participation 表现参与型票据"], ["14", "Skyline 阶梯型票据"], ["15", "Floater 浮动利息票据"], ["16", "Vanilla Bond 保本派息票据"]
+  ]},
+  currency: { name: "币种", meaning: "计价和结算货币。默认 USD。", enums: [
+    ["USD", "美元"], ["HKD", "港币"], ["AUD", "澳元"], ["CAD", "加元"], ["JPY", "日元"], ["EUR", "欧元"],
+    ["NZD", "纽元"], ["SGD", "新加坡元"], ["CHF", "瑞郎"], ["GBP", "英镑"], ["CNH", "离岸人民币"]
+  ]},
+  underlying: { name: "标的", meaning: "挂钩的股票或指数，1 到 4 个。多个标的时，敲出、敲入和到期都看表现最差的一个。", constraint: "自定义控件，至少 1 个、最多 4 个，不能重复" },
+  tenor: { name: "期限", meaning: "最长期限，单位月。提前敲出会缩短实际存续。默认 6。", constraint: "正整数，单位月" },
+  guaranteedPeriods: { name: "保证期", meaning: "发行后这段时间不观察敲出。默认 0，表示一开始就观察。", enums: [
+    ["0", "无保证期，默认"], ["1", "1 个月"], ["2", "2 个月"], ["3", "3 个月"], ["4", "4 个月"], ["5", "5 个月"],
+    ["6", "6 个月"], ["7", "7 个月"], ["8", "8 个月"], ["9", "9 个月"], ["10", "10 个月"], ["11", "11 个月"], ["12", "12 个月"],
+    ["2w", "2 周"], ["4w", "4 周"], ["6w", "6 周"], ["8w", "8 周"], ["10w", "10 周"], ["12w", "12 周"],
+    ["1m", "1 个月"], ["2m", "2 个月"]
+  ]},
+  observationFrequency: { name: "观察频率", meaning: "每隔几个月检查一次敲出或票息。默认 1。", enums: [["1", "每月"], ["2", "每 2 个月"], ["3", "每 3 个月"], ["6", "每 6 个月"], ["12", "每年"]] },
+  effectiveDateOffset: { name: "生效日偏移", meaning: "成交到起息隔几个工作日。默认 10。", enums: [["10", "10 个工作日，默认"], ["5", "5 个工作日"]] },
+  strike: { name: "执行价", meaning: "相对期初价的百分比。到期时用它判断是否交割股票、亏损从哪里开始。默认 100。", constraint: "百分比，两位小数" },
+  koType: { name: "敲出类型", meaning: "何时检查敲出。带 Memory 表示期内曾经达到，到检查点仍算敲出。", enums: [
+    ["Period End", "只在观察期期末看"], ["Period End Memory", "期内曾经达到，期末仍算敲出"],
+    ["Daily", "每个交易日看"], ["Daily Memory", "日内曾经达到即记为敲出"]
+  ]},
+  ko: { name: "敲出价", meaning: "标的越过这条线，产品提前结束。票据通常是向上越过。后台名 koBarrier。默认 100。", constraint: "百分比，两位小数" },
+  koStepdown: { name: "敲出递减", meaning: "每个观察期把敲出价下调的幅度，越往后越容易敲出。后台名 monthlyKoStepDown。默认 2。", constraint: "百分比，两位小数" },
+  kiType: { name: "障碍类型", meaning: "到期承担下行之前，要不要先跌破一条敲入线。后台名 barrierType。", enums: [
+    ["NONE", "无敲入，下行从执行价直接算"], ["AKI", "存续期内跌破即敲入"], ["EKI", "只在到期那一天看"]
+  ]},
+  ki: { name: "敲入价", meaning: "标的跌破后，到期才按执行价承担下行。没敲入则本金按条款返还。后台名 kiBarrier。", constraint: "百分比，两位小数" },
+  couponPA: { name: "年化票息", meaning: "按年化报价的固定票息。后台名 coupon。", constraint: "百分比，两位小数" },
+  conditionalCouponPA: { name: "条件年化票息", meaning: "只有满足票息条件才累积。雪球和凤凰用它，不用固定票息。后台名也是 coupon。", constraint: "百分比，两位小数" },
+  couponType: { name: "票息类型", meaning: "漏付的票息以后补不补。", enums: [["Memory", "补发以前没拿到的票息"], ["Non-Memory", "只付当期"]] },
+  couponBarrier: { name: "票息障碍", meaning: "标的在这条线之上才付当期票息。凤凰用它把付息和敲出分开。", constraint: "百分比，两位小数" },
+  bonus: { name: "红利", meaning: "到期一次性给的增强收益，用来代替逐期票息。", constraint: "百分比，两位小数" },
+  yieldPA: { name: "年化收益", meaning: "由折价和投资天数换算出来的年化，不是单独敲定的票息。", constraint: "百分比，由发行价和投资天数算出" },
+  notePrice: { name: "票面价", meaning: "客户买入价，相对面值的百分比。低于 100 是折价买入。对客价。默认 99。", constraint: "百分比，两位小数" },
+  nakedNotePrice: { name: "票面裸价", meaning: "还没加分销费用的发行商价格。内部价。后台按 double 存。", constraint: "百分比" },
+  issuePrice: { name: "发行价", meaning: "ELN 的买入价。求解时和票面价是同一件事。默认 99。", constraint: "百分比，两位小数" },
+  grossMargin: { name: "对客毛利", meaning: "加在客户价上的分销点差。内部价，只在询价创建和详情出现。", constraint: "百分比，两位小数" },
+  uf: { name: "UF", meaning: "向上分销费。内部价。", constraint: "百分比，两位小数" },
+  userUf: { name: "用户 UF", meaning: "累计期权给客户看的费用。", constraint: "数值，单位 bp，可带信用加点" },
+  issuer: { name: "发行商", meaning: "出票银行。询价表单里不走这个字段，由报价侧填写。", constraint: "自定义控件" },
+  isin: { name: "ISIN", meaning: "发行后的证券编码。询价时通常还没有，询价和 Tap On 发布里不展示。", constraint: "文本" },
+  valoren: { name: "Valoren", meaning: "瑞士证券编码。询价时通常还没有。", constraint: "6 到 9 位" },
+  size: { name: "规模", meaning: "名义金额。现网主要出现在 AI 场景。", constraint: "数值" },
+  denomination: { name: "面值", meaning: "单张面值。现网主要出现在 AI 场景。", constraint: "数值" },
+  couponReturn: { name: "票息回报", meaning: "存续里看到的票息结果。询价里不填。", constraint: "百分比，只在存续列表出现" },
+  issueDate: { name: "发行日", meaning: "用实际日期计息、计收益。", constraint: "日期" },
+  finalValuationDate: { name: "最终定价日", meaning: "计算到期收益的定价日。", constraint: "日期" },
+  maturityDate: { name: "到期日", meaning: "票据或期权结束的日期。", constraint: "日期" },
+  investmentDays: { name: "投资天数", meaning: "发行日到最终定价日的天数。ELN 用它把折价换成年化。", constraint: "正整数，单位天" },
+  normalLeveraged: { name: "普通/杠杆", meaning: "Normal 按 1 倍成交；Leveraged 在价内按杠杆倍数成交。默认 Leveraged。", enums: [["Normal", "1 倍"], ["Leveraged", "按杠杆倍数，默认"]] },
+  leverage: { name: "杠杆", meaning: "Leveraged 时的倍数。Normal 时不填。后台名 leverageLevel。默认 200。", enums: [["150", "150%"], ["200", "200%，默认"]] },
+  nonCall: { name: "Non-Call", meaning: "前若干期不观察敲出，避免刚发行就被赎回。", enums: [["yes", "开启，前几期不敲出"], ["no", "关闭，一开始就观察"]] },
+  settlementFrequency: { name: "结算频率", meaning: "累计期权把累到的股票交割一次的节奏。默认 Biweekly。", enums: [["Biweekly", "双周，默认"], ["Monthly", "每月"]] },
+  koSettlementCycle: { name: "敲出结算周期", meaning: "敲出之后这一期的股票还交不交。现网枚举只有 Yes。为 No 时，询价结果上不出现下单按钮。", enums: [["Yes", "敲出当期仍按规则交割"]] },
+  guaranteedDays: { name: "保证天数", meaning: "保证要成交的交易日数。这段时间里即使价格已经不利，仍要完成买卖。", constraint: "正整数，单位天" },
+  totalDays: { name: "总天数", meaning: "整段交易日数。", constraint: "正整数，单位天" },
+  sharesPerDay: { name: "每日股数", meaning: "普通情形下每个交易日名义上买入或卖出的股数。杠杆天按倍数放大。", constraint: "正整数" },
+  optionType: { name: "期权类型", meaning: "看涨还是看跌。", enums: [["Call", "有权按执行价买入"], ["Put", "有权按执行价卖出"]] },
+  bidPrice: { name: "买价", meaning: "发行商报出的权利金买价。内部价。", constraint: "百分比，两位小数" },
+  offerPrice: { name: "卖价", meaning: "发行商报出的权利金卖价。内部价。", constraint: "百分比，两位小数" },
+  userBidPrice: { name: "客户买价", meaning: "加过点差之后给客户的买价。创建询价时不展示。", constraint: "数值，可带信用加点" },
+  userOfferPrice: { name: "客户卖价", meaning: "加过点差之后给客户的卖价。创建询价时不展示。", constraint: "数值，可带信用加点" },
+  userPremium: { name: "客户权利金", meaning: "客户最终付出的权利金。", constraint: "数值，可带信用加点" },
+  exercise: { name: "行权方式", meaning: "只能到期行权，还是期内可以。", enums: [["European", "只能到期行权"], ["American", "期内可以行权"]] },
+  settlementType: { name: "结算方式", meaning: "到期用现金补差价，还是交割股票。", enums: [["Cash", "现金补差价"], ["Physical", "交割股票"]] },
+  direction: { name: "方向", meaning: "决定看上障碍还是下障碍，以及参与的是上涨还是下跌。", enums: [["Bullish", "看涨，用上障碍"], ["Bearish", "看跌，用下障碍"], ["TwinWin", "双向，上下障碍都要"]] },
+  couponKoType: { name: "票息敲出类型", meaning: "障碍按到期看，还是期内任何一天看。后台名 exercise。", enums: [["European", "只在到期看"], ["American", "期内任何一天看"]] },
+  upperBarrier: { name: "上障碍", meaning: "看涨或双向时，参与区间的上沿。触及之后收益切换。", constraint: "百分比，两位小数" },
+  lowerBarrier: { name: "下障碍", meaning: "看跌或双向时，参与区间的下沿。触及之后收益切换。", constraint: "百分比，两位小数" },
+  cashRebate: { name: "现金返还", meaning: "鲨鱼鳍触及障碍后给的一笔收益，之后不再继续参与。", constraint: "百分比，两位小数" },
+  minimumReturn: { name: "最低收益", meaning: "是否另有一笔保底。选 Yes 才填保底票息。", enums: [["Yes", "有保底"], ["No", "没有保底"]] },
+  floorCoupon: { name: "保底票息", meaning: "最低收益为 Yes 时的保底，或天际线在障碍外的收益，或浮动利息的下限。", constraint: "百分比，两位小数" },
+  capCoupon: { name: "封顶票息", meaning: "参与上涨时收益的上限，或天际线在区间内的收益，或浮动利息的上限。", constraint: "百分比，两位小数" },
+  participationRate: { name: "参与率", meaning: "客户跟上标的涨跌的比例。100% 是一比一。后台名 participation。默认 100。", constraint: "百分比，两位小数" },
+  principalProtection: { name: "本金保障", meaning: "到期至少拿回的本金比例。默认 100。", constraint: "百分比，两位小数" },
+  format: { name: "形式", meaning: "做成票据还是权证。默认 Note。", enums: [["Note", "票据，默认"], ["Warrant", "权证"]] },
+  issuerCallability: { name: "发行商可赎回", meaning: "发行商能不能提前把票据赎回。", enums: [["Yes", "可以提前赎回"], ["No", "不能提前赎回"]] },
+  nonCallPeriod: { name: "不可赎回期", meaning: "发行后多久之内不能赎回。", constraint: "正整数，单位月" },
+  callableFrequency: { name: "赎回频率", meaning: "锁定期过后多久可以赎回一次。默认 3。", enums: [["1", "每月"], ["3", "每 3 个月，默认"], ["6", "每 6 个月"], ["12", "每年"]] },
+  couponPaymentFrequency: { name: "付息频率", meaning: "利息多久付一次，或到期一次付清。", enums: [["1", "每月"], ["3", "每 3 个月"], ["6", "每 6 个月"], ["12", "每年"], ["At Maturity", "到期一次付清"]] },
+  condition: { name: "利率条件", meaning: "利息有没有上下限，是固定还是浮动。", enums: [
+    ["Capped", "有上限"], ["Floored", "有下限"], ["Capped Floored", "上下都有"], ["Fixed Rate", "固定利率，填固定利率"], ["Floating Rate", "浮动利率，填点差"]
+  ]},
+  fixedRatePA: { name: "固定利率", meaning: "条件为固定利率时的年化。浮动时不填。后台名 protectionRate。", constraint: "百分比，两位小数" },
+  spreadPA: { name: "点差", meaning: "浮动利率在基准上加的幅度。固定利率时不填。后台名 spreadPercentage。", constraint: "百分比，两位小数" }
+};
+
+const FCN = ["product","currency","guaranteedPeriods","underlying","strike","koType","ko","couponPA","grossMargin","nakedNotePrice","notePrice","tenor","kiType","ki","observationFrequency","effectiveDateOffset","issuer","isin","valoren","uf","size","denomination","couponReturn"];
+const BEN = ["product","currency","underlying","strike","bonus","grossMargin","nakedNotePrice","notePrice","tenor","kiType","ki","effectiveDateOffset","issuer","isin","valoren","uf","size","denomination","couponReturn"];
+const DCN = ["product","currency","underlying","strike","bonus","grossMargin","nakedNotePrice","notePrice","tenor","kiType","ki","effectiveDateOffset","issuer","isin","valoren","uf","couponReturn"];
+const ELN = ["product","currency","underlying","strike","koType","ko","tenor","grossMargin","nakedNotePrice","issuePrice","uf","issueDate","finalValuationDate","maturityDate","investmentDays","issuer","isin","valoren","notePrice","yieldPA","effectiveDateOffset"];
+const WRA = ["product","currency","guaranteedPeriods","underlying","strike","koType","ko","couponPA","grossMargin","nakedNotePrice","notePrice","tenor","kiType","ki","observationFrequency","effectiveDateOffset","issuer","isin","valoren","uf","couponReturn"];
+const SCN = ["product","normalLeveraged","leverage","currency","nonCall","guaranteedPeriods","underlying","strike","koType","ko","koStepdown","conditionalCouponPA","grossMargin","nakedNotePrice","notePrice","tenor","kiType","ki","observationFrequency","effectiveDateOffset","issuer","isin","valoren","uf","size","denomination","couponReturn"];
+const PHOENIX = ["product","currency","underlying","strike","ko","koStepdown","couponType","couponBarrier","conditionalCouponPA","grossMargin","nakedNotePrice","notePrice","tenor","kiType","ki","observationFrequency","effectiveDateOffset","issuer","isin","valoren","uf"];
+const SHARK = ["product","currency","underlying","direction","couponKoType","upperBarrier","lowerBarrier","strike","cashRebate","minimumReturn","floorCoupon","grossMargin","nakedNotePrice","notePrice","tenor","principalProtection","participationRate","effectiveDateOffset","format","issuer","isin","valoren","uf","couponReturn"];
+const AQ = ["product","normalLeveraged","guaranteedPeriods","underlying","strike","ko","userUf","uf","tenor","settlementFrequency","koSettlementCycle","guaranteedDays","totalDays","issuer","isin","valoren","sharesPerDay"];
+const VAN = ["product","currency","underlying","strike","optionType","userBidPrice","bidPrice","userOfferPrice","offerPrice","tenor","finalValuationDate","exercise","settlementType","userPremium","uf","issuer","isin","valoren"];
+const PP = ["product","currency","underlying","direction","strike","capCoupon","notePrice","tenor","principalProtection","participationRate","effectiveDateOffset","format","issuer","isin","valoren","couponReturn"];
+const SKY = ["product","currency","underlying","direction","couponKoType","upperBarrier","lowerBarrier","capCoupon","floorCoupon","notePrice","tenor","principalProtection","effectiveDateOffset","issuer","isin","valoren","couponReturn"];
+const FLOATER = ["product","currency","underlying","issuerCallability","nonCallPeriod","callableFrequency","condition","capCoupon","floorCoupon","notePrice","tenor","couponPaymentFrequency","principalProtection","effectiveDateOffset","issuer","isin","valoren"];
+const BOND = ["product","currency","condition","underlying","spreadPA","fixedRatePA","issuerCallability","nonCallPeriod","callableFrequency","notePrice","tenor","couponPaymentFrequency","principalProtection","effectiveDateOffset","issuer","isin","valoren"];
+
+const PRODUCTS = [
+  { id: "fcn", category: "Notes", code: "1", name: "FCN", title: "固定票息票据", solve: "执行价、年化票息、票面价", solveKeys: ["strike","couponPA","notePrice"], keys: FCN,
+    body: ["固定票息、可提前敲出。客户用下行风险换一笔高于存款的票息。标的在观察日高于敲出价，票据提前赎回，客户拿回本金和已发生的票息。没敲出则持有到到期：没敲入，或到期仍高于执行价，本金返还；敲入并且到期低于执行价，按执行价接股票或承担等比例亏损。"],
+    local: { guaranteedPeriods: "规则里留了位置，FCN 默认不启用。", strike: "到期接股票的价格。", ko: "提前赎回的触发线，通常在 100% 附近。", couponPA: "客户要换取的固定票息，是最常见的求解项。", kiType: "什么情况下到期才承担下行。NONE 表示没有这一层，下行从执行价直接算。" } },
+  { id: "sdfcn", category: "Notes", code: "5", name: "Step-down FCN", title: "敲出价递减型固定派息票据", solve: "执行价、年化票息、票面价", solveKeys: ["strike","couponPA","notePrice"], keys: FCN.concat(["koStepdown"]),
+    body: ["和 FCN 同一套收益，只是敲出价每个观察期下降一截。前几个月敲出难，后面越来越容易提前结束。客户接受晚一点敲出，用来换更高票息或更低执行价。"],
+    local: { koStepdown: "每一期敲出价下调几个点。例如从 100% 起、每期降 2%。", guaranteedPeriods: "前几个月即使价格到了，也不敲出。" } },
+  { id: "ben", category: "Notes", code: "2", name: "BEN", title: "收益增强票据", solve: "红利、票面价、执行价", solveKeys: ["bonus","notePrice","strike"], keys: BEN,
+    body: ["没有逐期票息，也没有敲出。到期看一次：没敲入则在本金之外再拿一笔红利；敲入且低于执行价，则按执行价承担下行。适合要一笔到期收益、又不想每个月处理敲出的客户。"],
+    local: { bonus: "条件满足时到期一次性给的增强收益，代替年化票息。", strike: "敲入之后的亏损起点。", kiType: "红利失效、开始承担下行的条件。" } },
+  { id: "dcn", category: "Notes", code: "9", name: "DCN", title: "红利票据", solve: "红利、票面价、执行价", solveKeys: ["bonus","notePrice","strike"], keys: DCN,
+    body: ["英文名是 Digital Coupon Note。现网字段和 BEN 是同一组：用红利表示一笔数字式收益，条件满足就拿，不满足就没有。没有逐期票息，也没有敲出类型。"],
+    local: { bonus: "条件满足时到期一次性给的数字式收益。" } },
+  { id: "eln", category: "Notes", code: "3", name: "ELN", title: "股票挂钩票据", solve: "执行价、发行价", solveKeys: ["strike","issuePrice"], keys: ELN,
+    body: ["折价买入、用折价换收益的短期限票据。客户按发行价买入，若到期标的不低于执行价，按面值赎回，收益就是面值和买入价的差。若低于执行价，按执行价接股票。可以带敲出：存续中触及敲出价就提前结束。年化收益不单独求解，由发行价和投资天数换算。"],
+    local: { strike: "接股票的价格。", issuePrice: "客户实际买入价。求解发行价就是在求解折价。", notePrice: "和发行价是同一件事，给客户看的买入价。", yieldPA: "把折价和投资天数换成的年化，给客户看收益水平。" } },
+  { id: "wra", category: "Notes", code: "4", name: "WRA", title: "区间票息票据", solve: "执行价、年化票息、票面价", solveKeys: ["strike","couponPA","notePrice"], keys: WRA,
+    body: ["英文名是 Worst of Range Accrual Note。现网没有单独的区间上下沿，用的字段和 FCN 同一组，并带保证期：票息仍用年化票息，提前结束仍用敲出，下行仍用敲入和执行价。多个标的时按最差一个计算，和名称里的 Worst of 一致。"],
+    local: { guaranteedPeriods: "这款产品启用保证期：前几个月不敲出，票息照样按条款计算。", couponPA: "现网用来表示区间票息的年化，没有另设区间上下沿字段。" } },
+  { id: "scn", category: "Notes", code: "8", name: "Step-down SCN", title: "敲出价递减型雪球票据", solve: "执行价、条件年化票息、票面价", solveKeys: ["strike","conditionalCouponPA","notePrice"], keys: SCN,
+    body: ["雪球不付固定票息。标的没跌破票息条件时，条件票息逐期滚存；一旦敲出，本金和已经滚存的票息一起退回。敲出价逐期下降，所以越往后越容易敲出。若敲入且到期低于执行价，按杠杆承担下行。Non-Call 表示前几期不看敲出，避免刚发行就被赎回。"],
+    local: { conditionalCouponPA: "滚存的那笔票息，不是每月必付的固定票息。", normalLeveraged: "敲入后按 1 倍还是 150%、200% 承担下行。", leverage: "Leveraged 时的下行倍数。", nonCall: "前若干期不敲出。", strike: "敲入之后的亏损起点。", kiType: "从只滚票息变成承担下行的线。" } },
+  { id: "phoenix", category: "Notes", code: "11", name: "Phoenix", title: "凤凰票据", solve: "执行价、条件年化票息、票面价", solveKeys: ["strike","conditionalCouponPA","notePrice"], keys: PHOENIX,
+    body: ["票息和敲出拆开。标的在票息障碍之上就付当期条件票息，Memory 会把之前没付的补上；Non-Memory 只付当期。敲出另看敲出价，并可以逐期下降。到期若已敲入且低于执行价，承担下行。客户要的是价格还行就持续拿票息，而不是雪球那种一次性滚存到敲出。"],
+    local: { couponBarrier: "付当期票息的线，通常低于敲出价。", couponType: "漏付的票息以后补不补。", conditionalCouponPA: "跨过票息障碍才付的年化。", ko: "提前赎回的线，和票息障碍分开。", strike: "到期接股票的价格。" } },
+  { id: "sharkfin", category: "Notes", code: "12", name: "Sharkfin", title: "鲨鱼鳍票据", solve: "上障碍、现金返还、票面价", solveKeys: ["upperBarrier","cashRebate","notePrice"], keys: SHARK,
+    body: ["带本金保障的参与结构。看涨时，标的落在执行价和上障碍之间，客户按参与率跟上上涨；触及上障碍则产品结束并拿到现金返还，不再继续参与。看跌看下障碍。双向则上下都有。最低收益为 Yes 时，即使没参与到上涨，也有一笔保底票息。本金保障写明到期至少拿回的比例。"],
+    local: { upperBarrier: "看涨参与区间的上沿。触及后切换成现金返还。", lowerBarrier: "看跌参与区间的下沿。", strike: "开始参与上涨或下跌的价格。", cashRebate: "触及障碍后给的收益。", direction: "看涨用上障碍，看跌用下障碍，双向两个都要。" } },
+  { id: "aq", category: "OTC", code: "6", name: "AQ", title: "累计期权", solve: "执行价、UF", solveKeys: ["strike","uf"], keys: AQ,
+    body: ["结构性买入。在敲出之前，客户按执行价持续买入标的。价格低于敲出才继续累；一旦向上敲出，停止买入。杠杆打开时，价格低于执行价的那些天按 150% 或 200% 的股数买入，跌得越多买得越多。双周或每月交割一次。保证天数内即使价格已经不利，仍要完成买入。"],
+    local: { ko: "价格涨过这条线就停止累股。方向和票据的向上敲出赎回相反，这里是停止买入。", strike: "按这个价格持续买入。", userUf: "客户看到的费用，单位 bp。", uf: "内部的百分比费用，也是这款产品的求解项。", sharesPerDay: "普通情形下每天买多少股。杠杆天按倍数放大。", koSettlementCycle: "敲出后这一期的股票还交不交。现网枚举是 Yes；若为 No，询价结果上不出现下单按钮。" } },
+  { id: "dq", category: "OTC", code: "7", name: "DQ", title: "累沽期权", solve: "执行价、UF", solveKeys: ["strike","uf"], keys: AQ,
+    body: ["结构性卖出，是 AQ 的镜像。客户按执行价持续卖出标的，价格跌过敲出价则停止。杠杆打开时，价格高于执行价的天数卖得更多。其余字段和 AQ 相同。"],
+    local: { ko: "价格跌过这条线就停止卖出。", strike: "按这个价格持续卖出。", sharesPerDay: "普通情形下每天卖多少股。杠杆天按倍数放大。" } },
+  { id: "van", category: "OTC", code: "10", name: "VAN", title: "普通期权", solve: "执行价、买价、卖价", solveKeys: ["strike","bidPrice","offerPrice"], keys: VAN,
+    body: ["不是票据，是香草期权。Call 有权按执行价买入，Put 有权按执行价卖出。客户支付权利金，换到期或美式期内按执行价成交的权利。买卖价是发行商报出的权利金，客户价是加过点差之后的价格。"],
+    local: { strike: "行权价。", bidPrice: "权利金的内部买价，可求解。", offerPrice: "权利金的内部卖价，可求解。", optionType: "看涨还是看跌。" } },
+  { id: "pp", category: "Other", code: "13", name: "Performance Participation", title: "表现参与型票据", solve: "", solveKeys: [], keys: PP,
+    body: ["客户按参与率跟上标的涨跌，封顶票息限制最高能拿多少，本金保障限制最少拿回多少。看涨跟上涨，看跌跟下跌。没有敲入敲出，收益在参与率和封顶之间取一个结果。交易里可选，现网没有配置求解项。"],
+    local: { strike: "开始计算参与的价格。", capCoupon: "收益上限。", direction: "跟涨还是跟跌。" } },
+  { id: "skyline", category: "Other", code: "14", name: "Skyline", title: "阶梯型票据", solve: "", solveKeys: [], keys: SKY,
+    body: ["收益分成两档。标的落在上下障碍之间，拿封顶票息；落到障碍外面，拿保底票息。本金按本金保障返还。方向决定这个区间相对标的是偏涨、偏跌还是双向。交易里可选，现网没有配置求解项。"],
+    local: { capCoupon: "落在区间内拿的收益。", floorCoupon: "落到区间外拿的收益。", upperBarrier: "高收益那一档的上沿。", lowerBarrier: "高收益那一档的下沿。" } },
+  { id: "floater", category: "Other", code: "15", name: "Floater", title: "浮动利息票据", solve: "", solveKeys: [], keys: FLOATER,
+    body: ["利息跟着利率走，可以用封顶、保底或两者一起限制。发行商可以在不可赎回期之后，按赎回频率提前赎回。利息按付息频率支付，也可以到期一次付。本金按本金保障返还。标的在这里更多是计价或挂钩参考，不是股票敲出。交易里可选，现网没有配置求解项。"],
+    local: { condition: "利息有没有上下限，还是纯浮动。", capCoupon: "利率上限。", floorCoupon: "利率下限。", underlying: "计价或挂钩参考，不是股票敲出线。" } },
+  { id: "bond", category: "Other", code: "16", name: "Vanilla Bond", title: "保本派息票据", solve: "", solveKeys: [], keys: BOND,
+    body: ["更接近一笔可赎回的债。利率条件选固定，就填固定利率；选浮动，就填点差，固定利率那一格不填。发行商赎回、付息频率、本金保障和 Floater 同一套。交易里可选，现网没有配置求解项。"],
+    local: { fixedRatePA: "固定利率时的年化。", spreadPA: "浮动利率时加在基准上的幅度。", condition: "固定还是浮动，以及有没有上下限。" } },
+  { id: "cln", category: "Unlisted", code: "", name: "CLN", title: "信用挂钩票据", solve: "", solveKeys: [], keys: [],
+    body: ["挂钩发债人信用。出信用事件则本金受损，没出则拿信用利差。product-type 里有这个名字，没有字段顺序，也没有求解项。"] },
+  { id: "autocall-booster", category: "Unlisted", code: "", name: "Autocall Booster", title: "敲出型看涨参与型票据", solve: "", solveKeys: [], keys: [],
+    body: ["可提前敲出，同时按参与率跟上上涨。只有名称，没有字段组合。"] },
+  { id: "booster", category: "Unlisted", code: "", name: "Booster", title: "看涨参与型票据", solve: "", solveKeys: [], keys: [],
+    body: ["参与上涨，没有敲出这一层。只有名称，没有字段组合。"] },
+  { id: "dran", category: "Unlisted", code: "", name: "DRAN", title: "区间内每日计息保本票据", solve: "", solveKeys: [], keys: [],
+    body: ["标的每天落在区间内才计一天利息，本金有保障。只有名称，没有字段组合。"] },
+  { id: "dracln", category: "Unlisted", code: "", name: "DRACLN", title: "区间内每日计息信用挂钩票据", solve: "", solveKeys: [], keys: [],
+    body: ["每日区间计息，再叠加信用挂钩。只有名称，没有字段组合。"] },
+  { id: "steepener", category: "Unlisted", code: "", name: "Leveraged Steepener", title: "杠杆型利率曲线陡峭化保本票据", solve: "", solveKeys: [], keys: [],
+    body: ["押注长端利率相对短端走高，并用杠杆放大。只有名称，没有字段组合。"] },
+  { id: "tracker", category: "Unlisted", code: "", name: "Tracker Certificate", title: "表现参与型票据", solve: "", solveKeys: [], keys: [],
+    body: ["几乎一比一跟踪标的，少有票息和敲出。只有名称，没有字段组合。"] },
+  { id: "others", category: "Unlisted", code: "", name: "Structured Notes (Others)", title: "结构化票据（其它类）", solve: "", solveKeys: [], keys: [],
+    body: ["归不进上面任何一款时的兜底类型。只有名称，没有字段组合。"] }
+];
+
+const CATEGORIES = [
+  ["Notes", "Notes"],
+  ["OTC", "OTC"],
+  ["Other", "Other"],
+  ["Unlisted", "未配置字段"]
+];
+
+const catTabs = document.getElementById("cat-tabs");
+const prodTabs = document.getElementById("prod-tabs");
+const kicker = document.getElementById("kicker");
+const title = document.getElementById("title");
+const body = document.getElementById("body");
+const solve = document.getElementById("solve");
+const drawer = document.getElementById("drawer");
+const backdrop = document.getElementById("backdrop");
+const drawerTitle = document.getElementById("drawer-title");
+const drawerSub = document.getElementById("drawer-sub");
+const drawerBody = document.getElementById("drawer-body");
+
+let category = "Notes";
+let currentId = "fcn";
+let openKey = "";
+
+function current() { return PRODUCTS.find((item) => item.id === currentId); }
+
+function renderCats() {
+  catTabs.replaceChildren();
+  CATEGORIES.forEach(([id, label]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", String(id === category));
+    button.textContent = label;
+    button.addEventListener("click", () => {
+      category = id;
+      const first = PRODUCTS.find((item) => item.category === id);
+      currentId = first.id;
+      render();
+    });
+    catTabs.appendChild(button);
+  });
+}
+
+function renderProducts() {
+  prodTabs.replaceChildren();
+  PRODUCTS.filter((item) => item.category === category).forEach((item) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", String(item.id === currentId));
+    button.textContent = item.name;
+    button.addEventListener("click", () => {
+      currentId = item.id;
+      render();
+    });
+    prodTabs.appendChild(button);
+  });
+}
+
+function renderBrief() {
+  const item = current();
+  const catLabel = CATEGORIES.find(([id]) => id === item.category)[1];
+  kicker.textContent = item.code ? catLabel + " · 编号 " + item.code : catLabel;
+  title.textContent = item.name + " " + item.title;
+  body.replaceChildren();
+  item.body.forEach((text) => {
+    const p = document.createElement("p");
+    p.textContent = text;
+    body.appendChild(p);
+  });
+  if (item.solve) {
+    solve.hidden = false;
+    const priceNote = item.keys.includes("notePrice")
+      ? "票面价是对客价；票面裸价、UF、对客毛利是内部价。"
+      : "UF 是内部价。";
+    solve.textContent = "询价可求解：" + item.solve + "。一笔询价的每一条条款只求解其中一个，其余由客户填写。" + priceNote;
+  } else {
+    solve.hidden = true;
+    solve.textContent = "";
+  }
+  renderFields();
+}
+
+function fieldMeaning(key, item) {
+  return (item.local && item.local[key]) || FIELDS[key].meaning;
+}
+
+function renderFields() {
+  const item = current();
+  const list = document.getElementById("field-list");
+  list.replaceChildren();
+  if (!item.keys.length) {
+    const p = document.createElement("p");
+    p.className = "empty-fields";
+    p.textContent = "现网没有字段组合。";
+    list.appendChild(p);
+    return;
+  }
+  item.keys.forEach((key) => {
+    const field = FIELDS[key];
+    const button = document.createElement("button");
+    button.type = "button";
+    if (openKey === key && !drawer.hidden) button.setAttribute("aria-current", "true");
+    const name = document.createElement("span");
+    name.className = "fname";
+    name.textContent = field.name;
+    if (item.solveKeys.includes(key)) {
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = "可求解";
+      name.appendChild(tag);
+    }
+    const keyLine = document.createElement("code");
+    keyLine.className = "key";
+    keyLine.textContent = key;
+    const role = document.createElement("span");
+    role.className = "role";
+    role.textContent = fieldMeaning(key, item);
+    const hint = document.createElement("span");
+    hint.className = "hint";
+    hint.textContent = field.enums ? "枚举" : "取值";
+    button.append(name, keyLine, role, hint);
+    button.addEventListener("click", () => openField(key));
+    list.appendChild(button);
+  });
+}
+
+function openField(key) {
+  const item = current();
+  const field = FIELDS[key];
+  openKey = key;
+  drawerTitle.textContent = field.name;
+  drawerSub.textContent = key + (item.solveKeys.includes(key) ? " · 可求解" : "");
+  drawerBody.replaceChildren();
+  const meaning = document.createElement("p");
+  meaning.textContent = fieldMeaning(key, item);
+  drawerBody.appendChild(meaning);
+  const list = document.createElement("ul");
+  list.className = "enum-list";
+  if (field.enums) {
+    field.enums.forEach(([value, label]) => {
+      const li = document.createElement("li");
+      const valueCode = document.createElement("code");
+      valueCode.textContent = value;
+      const text = document.createElement("span");
+      text.textContent = label;
+      li.append(valueCode, text);
+      list.appendChild(li);
+    });
+  } else {
+    const li = document.createElement("li");
+    const valueCode = document.createElement("code");
+    valueCode.textContent = "取值";
+    const text = document.createElement("span");
+    text.textContent = field.constraint || "自由填写";
+    li.append(valueCode, text);
+    list.appendChild(li);
+  }
+  drawerBody.appendChild(list);
+  drawer.hidden = false;
+  backdrop.hidden = false;
+  renderFields();
+  document.getElementById("close-detail").focus();
+}
+
+function closeDrawer() {
+  drawer.hidden = true;
+  backdrop.hidden = true;
+  drawerBody.replaceChildren();
+  openKey = "";
+  renderFields();
+}
+
+function render() {
+  closeDrawer();
+  renderCats();
+  renderProducts();
+  renderBrief();
+  history.replaceState(null, "", "#" + currentId);
+}
+
+document.getElementById("close-detail").addEventListener("click", closeDrawer);
+backdrop.addEventListener("click", closeDrawer);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeDrawer();
+});
+
+const fromHash = location.hash.replace("#", "");
+const matched = PRODUCTS.find((item) => item.id === fromHash);
+if (matched) {
+  category = matched.category;
+  currentId = matched.id;
+}
+render();
+  </script>
+</body>
+</html>

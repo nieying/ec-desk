@@ -1,0 +1,24 @@
+---
+description: 文档只写 HTML；先整理知识库，设计先不写
+alwaysApply: true
+---
+
+# 先整理知识库
+
+`ec-web` 只用来核对业务事实：有哪些产品、询价在求解什么、谁在下单、成交之后进入存续、价格分对客价和内部价。菜单、权限、交互和信息架构按结构化票据分销的岗位来设计，不从现网实现搬过来。
+
+当前只整理 `docs/knowledge/`。设计和旧草稿先不写、不放进侧栏。知识库整理完，再统一写 `docs/design/`。
+
+## 文档只输出 HTML
+
+`docs/` 下的文档只写 `.html`，不写、不留 `.md`。文件名用英文，不要用中文文件名。改知识库时直接改对应 HTML。
+
+- 入口是 `docs/index.html`。新页面沿用现有版式：左侧目录、正文 `article`、表格用 `table-wrap`。
+- 写完后把链接加进 `docs/index.html` 和同目录其他页面的侧栏。侧栏只保留知识库。
+- 不要再跑 Markdown 转 HTML 的脚本，也不要新建 `docs/**/*.md`。
+
+## 编码之前
+
+角色读 `docs/knowledge/01-user-roles.html`。参数和产品读 `docs/knowledge/02-product-parameters.html`、`docs/knowledge/03-product-definitions.html`。询价读 `docs/knowledge/quotation/01-background.html`。订单读 `docs/knowledge/order-lifecycle/01-order.html`，存续读 `docs/knowledge/order-lifecycle/02-lifecycle.html`。文档还没有的字段，用 `ec-web` 核对业务上有哪些、产品用哪些。
+
+设计先在回复里说，用户认可后再写。现在不要新建 `docs/design/`，也不要恢复 `docs/00` 到 `docs/04`。不要把 `ec-web` 的页面结构、权限表或菜单原样写进文档或代码。

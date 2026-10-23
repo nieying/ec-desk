@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>询价</title>
+  <style>html { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f4f1ea; color: #1c1915; font: 16px/1.65 "Iowan Old Style", Palatino, "Songti SC", "Source Han Serif SC", serif; }
+.layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+nav { position: sticky; top: 0; align-self: start; height: 100vh; overflow: auto; padding: 28px 18px 40px; background: #1c1915; color: #f6f1e8; }
+nav a { color: inherit; text-decoration: none; }
+nav .brand { display: block; margin-bottom: 22px; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #d7c4a3; }
+nav h2 { margin: 18px 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #a89880; font-weight: 600; }
+nav ul { list-style: none; margin: 0; padding: 0; }
+nav li a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 14px; line-height: 1.4; }
+nav li a:hover, nav li a.current { background: #3a332b; }
+main { padding: 42px 7vw 80px; max-width: 1080px; }
+article h1 { margin: 0 0 18px; font-size: 36px; line-height: 1.2; }
+article h2 { margin: 34px 0 12px; padding-top: 8px; font-size: 22px; border-top: 1px solid #e4d9c8; }
+article h3 { margin: 24px 0 8px; font-size: 18px; }
+article p { margin: 0 0 12px; }
+article ul, article ol { margin: 0 0 14px; padding-left: 1.3em; }
+article li { margin: 4px 0; }
+article a { color: #0e6b5c; }
+code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.88em; background: #efe6d6; padding: 0 4px; border-radius: 4px; }
+.code { margin: 0 0 16px; background: #241f1a; color: #f6f1e8; border-radius: 10px; overflow: auto; }
+.code-label { padding: 8px 14px 0; font: 12px/1 ui-monospace, monospace; color: #d7c4a3; }
+.code pre { margin: 0; padding: 12px 14px 14px; }
+.code code { background: transparent; color: inherit; padding: 0; }
+.table-wrap { overflow: auto; margin: 0 0 18px; border: 1px solid #e4d9c8; border-radius: 10px; background: #fffdf8; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.45; }
+th, td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid #efe6d6; }
+th { background: #1c1915; color: #f6f1e8; font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.mermaid { margin: 8px 0 18px; background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px; padding: 12px; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  nav { position: relative; height: auto; }
+  main { padding: 28px 18px 64px; }
+}</style>
+</head>
+<body>
+  <div class="layout">
+    <nav><a class="brand" href="../../index.html">EasyConnect 文档</a><h2>知识库</h2><ul><li><a href="../01-user-roles.html">用户角色</a></li><li><a href="../02-product-parameters.html">产品参数</a></li><li><a href="../03-product-definitions.html">产品定义</a></li><li><a class="current" href="01-background.html">询价</a></li><li><a href="../order-lifecycle/01-order.html">订单</a></li><li><a href="../order-lifecycle/02-lifecycle.html">存续</a></li></ul></nav>
+    <main><article>
+      <h1>询价</h1>
+      <p>这一页记录询价为什么存在，以及哪些询价已经是重复发生的生意。产品有哪些字段、每一款能求解什么，以 <a href="../03-product-definitions.html">产品定义</a> 和 <a href="../02-product-parameters.html">产品参数</a> 为准。谁看对客价、谁看内部价，以 <a href="../01-user-roles.html">用户角色</a> 为准。</p>
+
+      <h2>结构化票据在卖什么</h2>
+      <p>结构化票据把一组期权收成一张票据，由发行商出票，分销台卖给买方机构，买方再落到自己的终端客户。客户让出一部分上涨，或者答应在价格跌破某条线之后按执行价接股票，用来换一笔高于存款的票息，或者一个低于面值的买入价。</p>
+      <p>亚洲私人银行和 EAM 里，最常见的形状是最差表现：标的可以有 1 到 4 个，敲出、敲入和到期都看其中最弱的一个。两个股票很少一起跌时，最弱的那个更容易出事，发行商的对冲更贵，能报出的票息也更高。所以多标的票据特别依赖询价，单名股票和指数同样走这套条款。</p>
+      <p>一张票据在活着的时候只做几件事。观察日价格高于敲出价，提前结束，客户拿回本金和已经发生的收益。没有敲出就持有到到期。设了敲入的，要先跌破敲入价，到期低于执行价才按执行价承担亏损；没敲入则本金按条款回来。AQ 和 DQ 是同一类风险的另一种包装：在敲出之前按执行价持续买入或卖出股票，杠杆日按倍数放大股数。</p>
+
+      <h2>询价在比的是哪一个数</h2>
+      <p>这张票据没有交易所行情。同样的敲出价、敲入价、期限和标的，每家发行商的波动率、借券、相关性和自身信用都不一样，报出来的数就不一样。询价把条款写成一家银行也能定价的样子，同时发给几家，只留一个未知数。</p>
+      <p>一条条款只求解一个字段，其余由买方先填好。求解项决定了客户到底在问什么：</p>
+      <div class="table-wrap"><table><thead><tr><th>先写死的</th><th>留下的未知数</th><th>客户实际在问</th></tr></thead><tbody>
+        <tr><td>执行价、敲出、敲入、期限</td><td>年化票息或条件票息</td><td>这套保护能换来多高的收益。票息越高，对客户越好</td></tr>
+        <tr><td>票息、敲出、敲入、期限</td><td>执行价</td><td>想要的收益定了，下行从哪里开始。执行价越低，越不容易接股票</td></tr>
+        <tr><td>收益结构</td><td>票面价或发行价</td><td>用多少钱买到面值。价格越低，折价越大</td></tr>
+        <tr><td>AQ / DQ 的敲出和股数</td><td>执行价，或 UF</td><td>按什么价格持续买卖；或者这个价格上的费用是多少</td></tr>
+      </tbody></table></div>
+      <p>发行商回的是内部价。分销台加上 UF 之后，才成为买方能看见的对客价。票面价、发行价是对客价。票面裸价、UF、对客毛利是内部价。买方看不到别家还没释放的回复，发行商也看不到其他发行商的报价和分销点差。</p>
+      <p>报价跟着标的走，有效期很短，按小时甚至按分钟计。客户接受对客价之后，发行商仍要按当时的市场再确认一次。无法报价是正常结果：股票借不到、规模超出额度、标的不在覆盖范围里，银行就可以不回这个数。</p>
+
+      <h2>一笔询价怎么走完</h2>
+      <pre class="mermaid">flowchart TD
+  pick[买方选定产品、标的和期限] --> fix[其余条款写死，只留一个求解项]
+  fix --> fan[分销台把同一套条款同时发给多家发行商]
+  fan --> back[每家各自回复]
+  back --> kind{这一家回什么?}
+  kind -->|无法报价| skip[不进入比价]
+  kind -->|内部价| hold[留在分销台，买方还看不见]
+  skip --> ready
+  hold --> ready{现在释放吗?}
+  ready -->|再等其他家| back
+  ready -->|选中一家| uf[在内部价上加 UF]
+  uf --> client[得到对客价，只给买方看这一家]
+  client --> life{有效期内买方怎么处理?}
+  life -->|报价过期| reask[按当下市场重新发给发行商]
+  reask --> fan
+  life -->|不接受| retune[改条款或换求解项，成为另一笔询价]
+  retune --> fix
+  life -->|接受| order[询价结束，进入订单]</pre>
+      <p>询价在买方接受某一家的对客价并下单时结束。下单之后的承诺见 <a href="../order-lifecycle/01-order.html">订单</a>，起息之后的观察和交割见 <a href="../order-lifecycle/02-lifecycle.html">存续</a>。已经发行、有了 ISIN 的票据再卖给另一个客户，条款来自那张存量票据，那是另一段生意。</p>
+
+      <h2>已经比较成熟的询价</h2>
+      <p>成熟指的是市场上反复在做：条款模板稳定，求解项就那几个，多家发行商能同时回，分销台用 UF 把内部价变成对客价。下面按这个标准看现有产品。</p>
+      <div class="table-wrap"><table><thead><tr><th>生意</th><th>客户在换什么</th><th>通常求解</th><th>成熟到什么程度</th></tr></thead><tbody>
+        <tr><td>FCN、Step-down FCN</td><td>用下行和提前赎回，换一笔固定票息。递减型让后面的月份更容易敲出，用来换更高票息或更低执行价</td><td>年化票息、执行价、票面价</td><td>私人银行和 EAM 的日常主业。单名和最差多标的都做，也是每日批量最适合的模板</td></tr>
+        <tr><td>每日询价</td><td>同一批流动标的，配几套写死的标准条款，早上集中问一次，供当天谈话</td><td>仍是票息或执行价</td><td>FCN、ELN、AQ / DQ 已经是每日生意。参数上每日名单还包含 BEN、DCN、Step-down SCN、WRA，谈话频率低于 FCN</td></tr>
+        <tr><td>ELN</td><td>短期限折价买入。到期不低于执行价就按面值赎回，收益是面值和买入价的差；低于执行价就接股票</td><td>执行价、发行价</td><td>期限用天计，年化由折价和投资天数换算，不单独求解。短期限折扣票据是稳定的询价</td></tr>
+        <tr><td>BEN、DCN</td><td>不要逐期敲出。到期条件满足就拿一笔红利，敲入之后才按执行价承担下行</td><td>红利、票面价、执行价</td><td>单笔和每日都能做。结构比 FCN 短，求解习惯已经固定</td></tr>
+        <tr><td>Phoenix</td><td>价格还在票息障碍之上就付当期条件票息，敲出另看一条更高的线。Memory 会补以前漏掉的票息</td><td>条件年化票息、执行价、票面价</td><td>单笔定制已经稳定。条款比 FCN 多了票息障碍和票息类型，所以每日批量里不放</td></tr>
+        <tr><td>Step-down SCN</td><td>条件票息先滚着，敲出时连本金一起退回。敲出价逐期下降。敲入之后可以按杠杆承担下行</td><td>条件年化票息、执行价、票面价</td><td>条款已经稳定，也能放进每日名单。境内面向个人的雪球销售约束更紧；机构通过发行商票据来询价，量级小于 FCN</td></tr>
+        <tr><td>AQ、DQ</td><td>在敲出前按执行价持续买入或卖出。杠杆打开时，价格不利的那些天按 150% 或 200% 成交，默认是 200%</td><td>执行价、UF</td><td>香港股票上的日常生意，和票据询价平行。规模用每日股数和保证天数，不用票据面值</td></tr>
+      </tbody></table></div>
+
+      <h2>还没有形成日常询价的</h2>
+      <div class="table-wrap"><table><thead><tr><th>产品</th><th>现在的位置</th></tr></thead><tbody>
+        <tr><td>VAN</td><td>能问执行价和权利金买卖价。它是香草期权，分销台会零星去问，不会像 FCN 那样每天批量</td></tr>
+        <tr><td>WRA</td><td>名字是区间计息，字段仍和 FCN 同一组，区间上下沿还没有单独参数。每日名单里有它，独立的区间询价还没有形成</td></tr>
+        <tr><td>Sharkfin、Performance Participation、Skyline、Floater、Vanilla Bond</td><td>可以做成一笔交易。求解项还没有配，销售不会拿去多家同时比一个数</td></tr>
+        <tr><td>CLN、Autocall Booster、Booster、DRAN、DRACLN、Leveraged Steepener、Tracker、Structured Notes (Others)</td><td>只有名称，没有字段组合，也没有求解项</td></tr>
+      </tbody></table></div>
+
+      <h2>整理询价时先抓住的事</h2>
+      <ul>
+        <li>先定产品，再定留下哪一个数。FCN 的票息、执行价、票面价不能在同一条条款里一起问。</li>
+        <li>比较的是同一套条款下各家发行商的那个数。敲出或标的改了，就成了另一笔询价。</li>
+        <li>内部价和对客价是两档。UF 发生在发行商回复之后、释放给买方之前。</li>
+        <li>无法报价、报价过期、下单前再确认，都是这门生意的正常步骤。</li>
+        <li>日常主业是 FCN（含递减敲出）、ELN、AQ / DQ。Phoenix 是单笔主业。其余产品先别按这套询价的密度来写。</li>
+      </ul>
+    </article></main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'neutral', securityLevel: 'loose'});</script>
+</body>
+</html>

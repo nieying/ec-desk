@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>存续</title>
+  <style>html { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f4f1ea; color: #1c1915; font: 16px/1.65 "Iowan Old Style", Palatino, "Songti SC", "Source Han Serif SC", serif; }
+.layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+nav { position: sticky; top: 0; align-self: start; height: 100vh; overflow: auto; padding: 28px 18px 40px; background: #1c1915; color: #f6f1e8; }
+nav a { color: inherit; text-decoration: none; }
+nav .brand { display: block; margin-bottom: 22px; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #d7c4a3; }
+nav h2 { margin: 18px 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #a89880; font-weight: 600; }
+nav ul { list-style: none; margin: 0; padding: 0; }
+nav li a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 14px; line-height: 1.4; }
+nav li a:hover, nav li a.current { background: #3a332b; }
+main { padding: 42px 7vw 80px; max-width: 1080px; }
+article h1 { margin: 0 0 18px; font-size: 36px; line-height: 1.2; }
+article h2 { margin: 34px 0 12px; padding-top: 8px; font-size: 22px; border-top: 1px solid #e4d9c8; }
+article h3 { margin: 24px 0 8px; font-size: 18px; }
+article p { margin: 0 0 12px; }
+article ul, article ol { margin: 0 0 14px; padding-left: 1.3em; }
+article li { margin: 4px 0; }
+article a { color: #0e6b5c; }
+code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.88em; background: #efe6d6; padding: 0 4px; border-radius: 4px; }
+.table-wrap { overflow: auto; margin: 0 0 18px; border: 1px solid #e4d9c8; border-radius: 10px; background: #fffdf8; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.45; }
+th, td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid #efe6d6; }
+th { background: #1c1915; color: #f6f1e8; font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.mermaid { margin: 8px 0 18px; background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px; padding: 12px; }
+.cat-tabs, .prod-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.cat-tabs button, .prod-tabs button {
+  font: inherit; cursor: pointer; border: 1px solid #e4d9c8; background: #fffdf8; color: #1c1915;
+}
+.cat-tabs button { padding: 7px 14px; border-radius: 999px; font-size: 14px; }
+.prod-tabs { margin-bottom: 8px; }
+.prod-tabs button { padding: 6px 10px; border-radius: 8px; font-size: 13px; }
+.cat-tabs button[aria-selected="true"], .prod-tabs button[aria-selected="true"] {
+  background: #1c1915; color: #f6f1e8; border-color: #1c1915;
+}
+.flow h2 { margin-top: 12px; border-top: 0; padding-top: 0; }
+.scenario { margin: 4px 0 8px; }
+.scene {
+  margin: 0 0 8px; padding: 14px 16px 4px;
+  background: #fffdf8; border: 1px solid #e4d9c8; border-radius: 10px;
+}
+.scene h3 { margin: 0 0 6px; font-size: 16px; }
+[hidden] { display: none !important; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  nav { position: relative; height: auto; }
+  main { padding: 28px 18px 64px; }
+}</style>
+</head>
+<body>
+  <div class="layout">
+    <nav><a class="brand" href="../../index.html">EasyConnect 文档</a><h2>知识库</h2><ul><li><a href="../01-user-roles.html">用户角色</a></li><li><a href="../02-product-parameters.html">产品参数</a></li><li><a href="../03-product-definitions.html">产品定义</a></li><li><a href="../quotation/01-background.html">询价</a></li><li><a href="01-order.html">订单</a></li><li><a class="current" href="02-lifecycle.html">存续</a></li></ul></nav>
+    <main><article>
+      <h1>存续</h1>
+      <p>存续从起息日开始，到提前结束或到期交割结束。多个标的时，敲出、敲入、票息和到期都看当天表现最差的一个。官方价格以计算代理人的确认为准，存续运营把结果记到终端客户的托管账户。订单怎么成交，见 <a href="01-order.html">订单</a>。每款产品的字段含义见 <a href="../03-product-definitions.html">产品定义</a>。</p>
+      <p>每款产品的图是总路径。图下面的标签是不同参数场景，点开看这一组条件下钱和股票怎么走。金额是举例，票息按年化除以观察次数估算，实际天数以条款为准。多标的时把价格换成当天最差的那个。</p>
+      <h2 id="common">共同规则</h2>
+      <p>参数里的存续场景目前是这些产品：FCN、Step-down FCN、BEN、ELN、AQ、DQ、Step-down SCN、Sharkfin、Performance Participation、Skyline。Phoenix、DCN、WRA 的收益路径下面一并画出，存续场景还没有把它们单列进去。VAN 是期权，到期行权或作废，不按票据观察日走。</p>
+      <div class="table-wrap"><table><thead><tr><th>规则</th><th>存续里怎么用</th></tr></thead><tbody>
+        <tr><td>NONE</td><td>没有敲入这一道门。到期直接用执行价判断接不接股票</td></tr>
+        <tr><td>AKI</td><td>存续中任意一个交易日，最差标的跌破敲入价，敲入标记就变成是。标记一旦变成是，就留到到期</td></tr>
+        <tr><td>EKI</td><td>平时不记敲入。只在到期那一天看是否低于敲入价</td></tr>
+        <tr><td>Period End</td><td>只在观察日收盘比敲出价</td></tr>
+        <tr><td>Period End Memory</td><td>观察期内曾经到过敲出价，到观察日仍算敲出</td></tr>
+        <tr><td>Daily / Daily Memory</td><td>每个交易日都可以敲出。Memory 指盘中曾经触及即记下</td></tr>
+        <tr><td>接股票</td><td>股数等于名义本金除以执行价对应的价格，交最差的那个标的。现金结算则支付同等市值</td></tr>
+      </tbody></table></div>
+
+      <h2>产品流程</h2>
+      <div class="cat-tabs" id="cat-tabs" role="tablist" aria-label="产品大类"></div>
+      <div class="prod-tabs" id="prod-tabs" role="tablist" aria-label="产品流程"></div>
+
+      <section class="flow" id="fcn" data-cat="Notes">
+      <h2>FCN 和 Step-down FCN</h2>
+      <p>固定票息按观察期支付，价格高低都不改变当期票息。敲出才提前结束。敲入只影响到期：敲入了并且到期价低于执行价，才接股票。Step-down FCN 用同一张图，差别只是每一期开始前先把敲出价下调一截。保证期若大于 0，前几期只发票息、不看敲出；FCN 默认保证期是 0。WRA 的字段和这张图相同，并会用到保证期。</p>
+      <pre class="mermaid">flowchart TD
+  start[起息，敲入标记为否] --> day[到下一个交易日]
+  day --> aki{AKI 且最差价跌破敲入价?}
+  aki -->|是| flag[敲入标记改为是]
+  aki -->|否| hold[标记保持原样]
+  flag --> isObs{今天是观察日?}
+  hold --> isObs
+  isObs -->|否| day
+  isObs -->|是| inProtect{还在保证期内?}
+  inProtect -->|是| couponOnly[支付当期固定票息，不看敲出]
+  couponOnly --> more{还有下一期?}
+  inProtect -->|否| level[先更新本期敲出价]
+  level --> ko{最差价不低于本期敲出价?}
+  ko -->|是| called[支付当期票息和全部本金，存续结束]
+  ko -->|否| coupon[支付当期固定票息]
+  coupon --> more
+  more -->|是| day
+  more -->|否| mat{敲入标记为是，且到期价低于执行价?}
+  mat -->|是| shares[按执行价接股票或付等值现金]
+  mat -->|否| par[本金返还，存续结束]</pre>
+      <p>底数：名义 1,000,000，票面价 99，客户付出 990,000，期初价 100。六个月，每月观察，年化票息 12%，每月 10,000。敲出价 100，执行价 80，敲入价 70。接股票时股数是 1,000,000 / 80 = 12,500。每个标签只改写明的参数。</p>
+      <div class="scenario">
+        <div class="prod-tabs" role="tablist" aria-label="FCN 参数场景">
+          <button type="button" data-scene="aki-ko">AKI，观察日敲出</button>
+          <button type="button" data-scene="aki-par">AKI，未敲入到期</button>
+          <button type="button" data-scene="aki-share">AKI，敲入后接股票</button>
+          <button type="button" data-scene="aki-back">AKI，敲入但到期仍高</button>
+          <button type="button" data-scene="eki-in">EKI，到期才敲入</button>
+          <button type="button" data-scene="eki-out">EKI，中途跌破不算</button>
+          <button type="button" data-scene="none">NONE</button>
+          <button type="button" data-scene="step">敲出递减</button>
+          <button type="button" data-scene="protect">保证期</button>
+          <button type="button" data-scene="memory">期内曾触及</button>
+        </div>
+        <div class="scene" data-scene="aki-ko">
+          <h3>参数</h3>
+          <p>障碍类型 AKI，敲出类型 Period End，保证期 0，敲出递减 0。</p>
+          <h3>走向</h3>
+          <p>第 1 个观察日价格 102，不低于敲出价 100。当期票息 10,000 和本金 1,000,000 一起回来，客户累计收回 1,010,000。后面五期不再发生。</p>
+        </div>
+        <div class="scene" data-scene="aki-par">
+          <h3>参数</h3>
+          <p>与底数相同，AKI，Period End。</p>
+          <h3>走向</h3>
+          <p>六期观察日都低于 100，所以不敲出，每期付 10,000，共 60,000。存续中从未低于 70，敲入标记保持否。到期价 90，仍高于执行价 80，本金 1,000,000 回来。客户累计收回 1,060,000。</p>
+        </div>
+        <div class="scene" data-scene="aki-share">
+          <h3>参数</h3>
+          <p>与底数相同，AKI。</p>
+          <h3>走向</h3>
+          <p>中途价格到过 68，低于敲入价 70，敲入标记改为是，并留到到期。六期票息 60,000 已经付过，不退。到期价 75，低于执行价 80，按执行价接 12,500 股，市值 12,500 × 75 = 937,500。</p>
+        </div>
+        <div class="scene" data-scene="aki-back">
+          <h3>参数</h3>
+          <p>与底数相同，AKI。</p>
+          <h3>走向</h3>
+          <p>中途同样到过 68，敲入标记为是。到期价改成 90，90 不低于执行价 80。敲入本身不造成接股票，本金 1,000,000 回来，已付票息 60,000 留下。</p>
+        </div>
+        <div class="scene" data-scene="eki-in">
+          <h3>参数</h3>
+          <p>障碍类型改成 EKI。其余与底数相同。</p>
+          <h3>走向</h3>
+          <p>存续中价格到过 68，EKI 平时不记敲入。到期价 75，低于敲入价 70，这一天才把敲入标记改为是，同时 75 低于执行价 80，接 12,500 股。已付票息留下。</p>
+        </div>
+        <div class="scene" data-scene="eki-out">
+          <h3>参数</h3>
+          <p>障碍类型 EKI。</p>
+          <h3>走向</h3>
+          <p>存续中同样到过 68。到期价 90，不低于敲入价 70，所以整段都不算敲入。90 也高于执行价 80，本金 1,000,000 回来，外加六期票息 60,000。</p>
+        </div>
+        <div class="scene" data-scene="none">
+          <h3>参数</h3>
+          <p>障碍类型 NONE，没有敲入价。</p>
+          <h3>走向</h3>
+          <p>到期直接用执行价。到期价 75，低于 80，接 12,500 股，不用先跌破另一条线。若到期价是 90，本金回来。</p>
+        </div>
+        <div class="scene" data-scene="step">
+          <h3>参数</h3>
+          <p>Step-down FCN。敲出从 100 起，每期下降 2。AKI，保证期 0。</p>
+          <h3>走向</h3>
+          <p>第 1 期价格 99，低于当期敲出价 100，只付票息 10,000。第 2 期敲出价变成 98，价格 98.5，达到 98，本金和当期票息一起回来。后面不再观察。</p>
+        </div>
+        <div class="scene" data-scene="protect">
+          <h3>参数</h3>
+          <p>保证期 2 个月。WRA 会用到这项，FCN 默认是 0。敲出价仍是 100。</p>
+          <h3>走向</h3>
+          <p>第 1 期价格 102，已经不低于 100，但还在保证期内，不敲出，只付票息 10,000。第 2 期同样。第 3 期起恢复看敲出，价格若再次不低于当期敲出价，本金和当期票息一起回来。</p>
+        </div>
+        <div class="scene" data-scene="memory">
+          <h3>参数</h3>
+          <p>敲出类型改成 Period End Memory。观察日只在期末，但期内曾经到过敲出价也算。</p>
+          <h3>走向</h3>
+          <p>这一期内价格曾到 101，观察日收盘是 97，低于 100。因为带 Memory，期末仍算敲出，支付当期票息和本金，存续结束。</p>
+        </div>
+      </div>
+      </section>
+
+      <section class="flow" id="ben" data-cat="Notes" hidden>
+      <h2>BEN 和 DCN</h2>
+      <p>没有逐期票息，也没有敲出。存续里平时只做一件事：AKI 时盯着有没有跌破敲入价。到期看一次。DCN 用同一张图，红利那一格是一笔数字式收益。DCN 还没有放进存续场景名单。</p>
+      <pre class="mermaid">flowchart TD
+  start[起息，敲入标记为否] --> day[每个交易日]
+  day --> aki{AKI 且跌破敲入价?}
+  aki -->|是| flag[敲入标记改为是]
+  aki -->|否| wait[继续持有到到期]
+  flag --> wait
+  wait --> mat{到到期日?}
+  mat -->|否| day
+  mat -->|是| ki{敲入标记为是?}
+  ki -->|否| bonus[本金加红利，存续结束]
+  ki -->|是| below{到期价低于执行价?}
+  below -->|是| shares[按执行价接股票或付等值现金]
+  below -->|否| principal[只返还本金，红利不付]</pre>
+      <p>底数：名义 1,000,000，红利 8%，期初价 100，敲入价 70，执行价 80。接股票股数 12,500。没有逐期票息。</p>
+      <div class="scenario">
+        <div class="prod-tabs" role="tablist" aria-label="BEN 参数场景">
+          <button type="button" data-scene="aki-bonus">AKI，未敲入</button>
+          <button type="button" data-scene="aki-share">AKI，敲入后接股票</button>
+          <button type="button" data-scene="aki-par">AKI，敲入但到期仍高</button>
+          <button type="button" data-scene="eki">EKI</button>
+          <button type="button" data-scene="none">NONE</button>
+        </div>
+        <div class="scene" data-scene="aki-bonus">
+          <h3>参数</h3>
+          <p>障碍类型 AKI。DCN 把红利读成一笔数字式收益，路径相同。</p>
+          <h3>走向</h3>
+          <p>存续中从未低于 70。到期拿本金 1,000,000 加红利 80,000，共 1,080,000。</p>
+        </div>
+        <div class="scene" data-scene="aki-share">
+          <h3>参数</h3>
+          <p>AKI。</p>
+          <h3>走向</h3>
+          <p>中途到过 68，敲入标记改为是。到期价 75，低于执行价 80，红利不付，接 12,500 股，市值 937,500。</p>
+        </div>
+        <div class="scene" data-scene="aki-par">
+          <h3>参数</h3>
+          <p>AKI。</p>
+          <h3>走向</h3>
+          <p>中途到过 68，敲入标记为是。到期价 90，不低于执行价 80。只返还本金 1,000,000，红利不付，也不接股票。</p>
+        </div>
+        <div class="scene" data-scene="eki">
+          <h3>参数</h3>
+          <p>障碍类型改成 EKI。</p>
+          <h3>走向</h3>
+          <p>存续中到过 68 也不记。到期价 75，低于敲入价 70，到期才敲入，再因低于执行价 80 而接 12,500 股。若到期价是 90，90 不低于 70，不敲入，本金加红利一起拿。</p>
+        </div>
+        <div class="scene" data-scene="none">
+          <h3>参数</h3>
+          <p>障碍类型 NONE，没有敲入价，红利不再另设一道门。</p>
+          <h3>走向</h3>
+          <p>到期价 90，不低于执行价 80，本金 1,000,000 加红利 80,000。到期价 75，低于 80，直接接 12,500 股，红利不付。</p>
+        </div>
+      </div>
+      </section>
+
+      <section class="flow" id="eln" data-cat="Notes" hidden>
+      <h2>ELN</h2>
+      <p>客户按发行价折价买入，中间没有逐期票息。年化收益由折价和投资天数换算，用来给客户看收益水平，不另付一笔。可以带敲出：存续中触及敲出价就提前按面值结束。没有敲出时，到期不低于执行价就按面值赎回，低于执行价就接股票。</p>
+      <pre class="mermaid">flowchart TD
+  start[起息，客户已按发行价付款] --> day[每个交易日]
+  day --> ko{价格达到敲出价?}
+  ko -->|是| early[提前按面值赎回，存续结束]
+  ko -->|否| mat{到最终定价日?}
+  mat -->|否| day
+  mat -->|是| strike{到期价不低于执行价?}
+  strike -->|是| par[按面值赎回]
+  strike -->|否| shares[按执行价接股票]</pre>
+      <p>底数：名义 900,000，发行价 98，客户付出 882,000，期初价 100，执行价 90。股数 = 900,000 / 90 = 10,000。年化由折价和投资天数换算，不另付一笔。</p>
+      <div class="scenario">
+        <div class="prod-tabs" role="tablist" aria-label="ELN 参数场景">
+          <button type="button" data-scene="ko">有敲出，中途敲出</button>
+          <button type="button" data-scene="par">有敲出，到期按面值</button>
+          <button type="button" data-scene="share">有敲出，到期接股票</button>
+          <button type="button" data-scene="noko">不带敲出</button>
+        </div>
+        <div class="scene" data-scene="ko">
+          <h3>参数</h3>
+          <p>敲出价 105。</p>
+          <h3>走向</h3>
+          <p>存续中价格到 105。提前按面值拿回 900,000。相对付出的 882,000，赚 18,000，不用等到最终定价日。</p>
+        </div>
+        <div class="scene" data-scene="par">
+          <h3>参数</h3>
+          <p>敲出价 105。</p>
+          <h3>走向</h3>
+          <p>从未到过 105。到期价 95，不低于执行价 90，到期按面值拿回 900,000，同样赚 18,000。</p>
+        </div>
+        <div class="scene" data-scene="share">
+          <h3>参数</h3>
+          <p>敲出价 105。</p>
+          <h3>走向</h3>
+          <p>从未到过 105。到期价 81，低于执行价 90，拿 10,000 股，市值 810,000。</p>
+        </div>
+        <div class="scene" data-scene="noko">
+          <h3>参数</h3>
+          <p>不设敲出价。存续中价格到 105 也不提前结束。</p>
+          <h3>走向</h3>
+          <p>只在最终定价日比较执行价。到期价 95 拿回 900,000；到期价 81 拿 10,000 股。</p>
+        </div>
+      </div>
+      </section>
+
+      <section class="flow" id="scn" data-cat="Notes" hidden>
+      <h2>Step-down SCN</h2>
+      <p>条件票息先滚在票据上，不按月付给客户。敲出时，本金和已经滚存的票息一起退回。敲出价每期下降。Non-Call 的前几期不看敲出。敲入价是「还在滚票息」和「到期可能承担下行」的分界：跌破之后不再滚存。敲入后若又升回敲出价，仍可以提前结束，带走跌破之前已经滚下的部分。到期若已敲入且低于执行价，跌幅按杠杆放大。</p>
+      <pre class="mermaid">flowchart TD
+  start[起息，敲入标记为否，滚存为 0] --> day[到观察日]
+  day --> aki{本期曾跌破敲入价?}
+  aki -->|是| stopRoll[敲入标记改为是，停止继续滚存]
+  aki -->|否| roll[按本期条件票息滚入余额]
+  stopRoll --> noncall{还在 Non-Call?}
+  roll --> noncall
+  noncall -->|是| next[进入下一期]
+  noncall -->|否| ko{最差价不低于本期敲出价?}
+  ko -->|是| called[本金加已滚存票息，存续结束]
+  ko -->|否| next
+  next --> more{还有下一期?}
+  more -->|是| down[敲出价再降一截]
+  down --> day
+  more -->|否| mat{敲入标记为是且到期价低于执行价?}
+  mat -->|否| par[本金加剩余滚存，存续结束]
+  mat -->|是| loss[本金减去杠杆后的跌幅，滚存不付]</pre>
+      <p>底数：名义 1,000,000，期初价 100，条件票息年化 24%，每月滚存 20,000，先不付给客户。敲出从 100 起每期降 2，六期后的敲出价是 90。敲入价 70，执行价 80。杠杆默认 200%。</p>
+      <div class="scenario">
+        <div class="prod-tabs" role="tablist" aria-label="雪球参数场景">
+          <button type="button" data-scene="noncall">Non-Call 后敲出</button>
+          <button type="button" data-scene="early">Non-Call 关闭</button>
+          <button type="button" data-scene="full">持有到期，未敲入</button>
+          <button type="button" data-scene="recover">敲入后又敲出</button>
+          <button type="button" data-scene="par">敲入，到期仍高于执行价</button>
+          <button type="button" data-scene="lev">敲入，杠杆 200%</button>
+          <button type="button" data-scene="normal">敲入，普通 1 倍</button>
+        </div>
+        <div class="scene" data-scene="noncall">
+          <h3>参数</h3>
+          <p>Non-Call 打开，第 1 期不看敲出。杠杆 200%。</p>
+          <h3>走向</h3>
+          <p>第 1 期价格 110，高于敲出价，但处在 Non-Call，不结束，滚存 20,000。第 2 期敲出价降到 98，价格 99，敲出。客户拿本金加两期滚存：1,000,000 + 40,000 = 1,040,000。</p>
+        </div>
+        <div class="scene" data-scene="early">
+          <h3>参数</h3>
+          <p>Non-Call 关闭，第 1 期就看敲出。</p>
+          <h3>走向</h3>
+          <p>第 1 期价格 110，不低于 100。滚存 20,000 后立刻连本金退回，客户拿 1,020,000。后面的递减不再发生。</p>
+        </div>
+        <div class="scene" data-scene="full">
+          <h3>参数</h3>
+          <p>Non-Call 打开。六期价格都低于当期敲出价，也从未低于 70。</p>
+          <h3>走向</h3>
+          <p>滚存六期共 120,000。到期未敲入，本金 1,000,000 加滚存一起拿回，共 1,120,000。</p>
+        </div>
+        <div class="scene" data-scene="recover">
+          <h3>参数</h3>
+          <p>Non-Call 打开。敲入后不再滚存，但敲出仍然有效。</p>
+          <h3>走向</h3>
+          <p>第 1 期价格 95，不敲出，滚存 20,000。第 2 期价格 65，低于 70，敲入标记改为是，这一期起停止滚存。第 3 期敲出价 96，价格 97，敲出。客户拿本金加跌破之前已经滚下的 20,000，共 1,020,000。</p>
+        </div>
+        <div class="scene" data-scene="par">
+          <h3>参数</h3>
+          <p>杠杆 200%。到期价要低于最后一期敲出价 90，才不会在期末被敲出。</p>
+          <h3>走向</h3>
+          <p>存续中到过 65，已敲入，滚存停在敲入前的金额并且不付。到期价 85，低于当期敲出价 90，所以不敲出；85 不低于执行价 80，本金 1,000,000 回来，不接股票。</p>
+        </div>
+        <div class="scene" data-scene="lev">
+          <h3>参数</h3>
+          <p>杠杆 200%，执行价 80。</p>
+          <h3>走向</h3>
+          <p>已敲入。到期价 60，低于执行价 80，跌了 25%。亏损按两倍计：2 × 25% × 1,000,000 = 500,000。客户拿回 500,000。滚存的票息不付。最多亏完这笔名义本金。</p>
+        </div>
+        <div class="scene" data-scene="normal">
+          <h3>参数</h3>
+          <p>普通 / 杠杆改成 Normal，下行按 1 倍。价格路径与上一档相同。</p>
+          <h3>走向</h3>
+          <p>到期价 60，跌了 25%。亏损是 250,000，客户拿回 750,000。滚存的票息同样不付。</p>
+        </div>
+      </div>
+      </section>
+
+      <section class="flow" id="phoenix" data-cat="Notes" hidden>
+      <h2>Phoenix</h2>
+      <p>票息和敲出是两条线。最差价不低于票息障碍，才付当期条件票息；不低于敲出价，才提前赎回。Memory 把以前没付的期数补上，Non-Memory 只付当期。敲出价也可以逐期下降。到期若已敲入且低于执行价，按执行价接股票。这款产品的单笔询价已经稳定，存续场景名单里还没有它。</p>
+      <pre class="mermaid">flowchart TD
+  start[起息，敲入标记为否，待补期数为 0] --> day[到观察日]
+  day --> aki{AKI 且曾跌破敲入价?}
+  aki -->|是| flag[敲入标记改为是]
+  aki -->|否| keep[标记不变]
+  flag --> coupon
+  keep --> coupon
+  coupon{最差价不低于票息障碍?}
+  coupon -->|是| pay[支付当期票息。Memory 再补上待补期数，待补清零]
+  coupon -->|否| miss[当期不付。Memory 则待补期数加一]
+  pay --> ko
+  miss --> ko
+  ko{最差价不低于本期敲出价?}
+  ko -->|是| called[再付本金，存续结束]
+  ko -->|否| more{还有下一期?}
+  more -->|是| step[若有递减，敲出价下调一截]
+  step --> day
+  more -->|否| mat{敲入且到期价低于执行价?}
+  mat -->|是| shares[按执行价接股票]
+  mat -->|否| par[本金返还]</pre>
+      <p>底数：名义 1,000,000，每月条件票息 10,000，票息障碍 85，敲出价 100，敲入价 70，执行价 80。接股票股数 12,500。</p>
+      <div class="scenario">
+        <div class="prod-tabs" role="tablist" aria-label="Phoenix 参数场景">
+          <button type="button" data-scene="pay">只付票息</button>
+          <button type="button" data-scene="memory">Memory，漏付后补</button>
+          <button type="button" data-scene="nomem">Non-Memory</button>
+          <button type="button" data-scene="ko">敲出</button>
+          <button type="button" data-scene="step">敲出递减</button>
+          <button type="button" data-scene="share">敲入后接股票</button>
+        </div>
+        <div class="scene" data-scene="pay">
+          <h3>参数</h3>
+          <p>票息类型先不区分，因为这一期没有漏付。敲出递减 0。</p>
+          <h3>走向</h3>
+          <p>观察日价格 90。90 不低于票息障碍 85，付当期 10,000。90 低于敲出价 100，不赎回，继续持有。</p>
+        </div>
+        <div class="scene" data-scene="memory">
+          <h3>参数</h3>
+          <p>票息类型 Memory。</p>
+          <h3>走向</h3>
+          <p>第 1 月价格 90，付 10,000。第 2 月价格 80，低于 85，当期不付，待补期数变成 1。第 3 月价格 88，付当期 10,000，并补上第 2 月的 10,000，待补清零。这三期都低于 100，不敲出。</p>
+        </div>
+        <div class="scene" data-scene="nomem">
+          <h3>参数</h3>
+          <p>票息类型 Non-Memory。价格与上一档相同。</p>
+          <h3>走向</h3>
+          <p>第 2 月的 10,000 不再补。第 3 月价格 88，只付当期 10,000。</p>
+        </div>
+        <div class="scene" data-scene="ko">
+          <h3>参数</h3>
+          <p>Memory，敲出价 100，不递减。</p>
+          <h3>走向</h3>
+          <p>第 4 月价格 101。先按票息障碍处理当期票息，再因 101 不低于 100 而敲出，本金 1,000,000 和当期票息一起回来，存续结束。</p>
+        </div>
+        <div class="scene" data-scene="step">
+          <h3>参数</h3>
+          <p>敲出从 100 起每期下降 2。</p>
+          <h3>走向</h3>
+          <p>第 1 期价格 99，低于 100，不敲出；99 不低于 85，付 10,000。第 2 期敲出价变成 98，价格 98.5，敲出，本金和当期票息回来。</p>
+        </div>
+        <div class="scene" data-scene="share">
+          <h3>参数</h3>
+          <p>障碍类型 AKI，执行价 80。</p>
+          <h3>走向</h3>
+          <p>存续中到过 68，敲入标记为是。之后各期都低于当期敲出价，持有到到期。到期价 75，低于执行价 80，接 12,500 股。已经付过的条件票息不退。</p>
+        </div>
+      </div>
+      </section>
+
+      <section class="flow" id="aq" data-cat="OTC" hidden>
+      <h2>AQ 和 DQ</h2>
+      <p>这不是一张拿票息的票据。AQ 在敲出之前按执行价持续买入股票，DQ 按执行价持续卖出。价格高于 AQ 的敲出价就停止买入；DQ 是价格跌破敲出价就停止卖出。杠杆打开时，AQ 在价格低于执行价的日子按 150% 或 200% 的股数买入，默认 200%；DQ 在价格高于执行价的日子卖得更多。双周或每月把这段时间累到的股票交割一次。保证天数内，价格已经不利也要按规则买满或卖满。敲出当期的股票仍交割，现网这个枚举是 Yes。之后不再累。</p>
+      <pre class="mermaid">flowchart TD
+  start[起息，剩余交易日等于总天数] --> day[到下一个交易日]
+  day --> ko{AQ：价格达到敲出价？ DQ：价格跌破敲出价？}
+  ko -->|是| stop[当日不再买卖，之后停止]
+  ko -->|否| side{相对执行价}
+  side -->|AQ 高于等于执行价，或 DQ 低于等于执行价| normal[按每日股数，以执行价买卖]
+  side -->|AQ 低于执行价，或 DQ 高于执行价| lev{杠杆是否打开?}
+  lev -->|打开| geared[按杠杆倍数买卖]
+  lev -->|普通| normal
+  normal --> gtd
+  geared --> gtd
+  gtd[若仍在保证天数且当天本应成交，价格不利也要成交] --> settle{到了双周或每月结算日?}
+  settle -->|是| deliver[把本期股数交割，客户按执行价付或收现金]
+  settle -->|否| next
+  deliver --> next{还有剩余交易日且未敲出?}
+  stop --> last[把敲出前已累的股数按本期结算]
+  next -->|是| day
+  next -->|否| endNode[存续结束]</pre>
+      <p>底数：每日股数 1,000，执行价按股价 90 或 110 理解，客户按执行价收付，和当天市价无关。敲出当期不再新开仓，已经累到的股票仍交割。</p>
+      <div class="scenario">
+        <div class="prod-tabs" role="tablist" aria-label="AQ 参数场景">
+          <button type="button" data-scene="lev">AQ，杠杆日</button>
+          <button type="button" data-scene="normal">AQ，普通 1 倍</button>
+          <button type="button" data-scene="ko">AQ，向上敲出</button>
+          <button type="button" data-scene="gtd">AQ，保证天数</button>
+          <button type="button" data-scene="dq">DQ</button>
+        </div>
+        <div class="scene" data-scene="lev">
+          <h3>参数</h3>
+          <p>AQ，杠杆 200%，执行价 90，敲出价 105。</p>
+          <h3>走向</h3>
+          <p>收盘 95，在执行价和敲出价之间，按每日股数买 1,000，付出 90,000。收盘 88，低于执行价，按 2 倍买 2,000，付出 180,000。这两日共 3,000 股，结算时客户付 270,000。其中第 2 日股票市值是 176,000，客户仍按 180,000 付款。</p>
+        </div>
+        <div class="scene" data-scene="normal">
+          <h3>参数</h3>
+          <p>普通 / 杠杆改成 Normal。执行价 90，敲出价 105。</p>
+          <h3>走向</h3>
+          <p>收盘 88，虽然低于执行价，仍只买 1,000 股，付出 90,000。没有 2 倍那一档。</p>
+        </div>
+        <div class="scene" data-scene="ko">
+          <h3>参数</h3>
+          <p>AQ，杠杆 200%，敲出价 105。</p>
+          <h3>走向</h3>
+          <p>前两日已经累了 3,000 股。第 3 日收盘 106，达到敲出价，当日股数是 0，之后停止买入。结算只交前两日的股票，客户付 270,000。</p>
+        </div>
+        <div class="scene" data-scene="gtd">
+          <h3>参数</h3>
+          <p>保证天数 2，杠杆 200%，执行价 90，敲出价 105。</p>
+          <h3>走向</h3>
+          <p>第 1 日收盘 88，价格已经不利，但仍在保证天数内，必须按 2 倍买 2,000，付出 180,000。第 2 日收盘 106，敲出，当日不再买。保证天数约束的是敲出之前的不利日，敲出之后停止加仓，已买的 2,000 股仍交割。</p>
+        </div>
+        <div class="scene" data-scene="dq">
+          <h3>参数</h3>
+          <p>DQ，杠杆 200%，执行价 110，敲出价 95。客户按 110 卖出。</p>
+          <h3>走向</h3>
+          <p>收盘 112，高于执行价，按 2 倍卖 2,000，收回 220,000。收盘 100，低于执行价、仍高于敲出价 95，按 1,000 股卖出，收回 110,000。收盘 94，跌破敲出价，停止卖出。已卖出的 3,000 股仍按本期结算。</p>
+        </div>
+      </div>
+      </section>
+
+      <section class="flow" id="sharkfin" data-cat="Notes" hidden>
+      <h2>Sharkfin</h2>
+      <p>本金按本金保障的比例回来。看涨时，价格落在执行价和上障碍之间，客户按参与率跟上上涨；触及上障碍则存续结束，改拿现金返还，之后不再参与。看跌看下障碍。双向两条障碍都看。最低收益为是时，没有参与到涨跌也有一笔保底票息。障碍用 European 则只在到期看，用 American 则期内任何一天触及都结束。</p>
+      <pre class="mermaid">flowchart TD
+  start[起息] --> day[到观察时点]
+  day --> hit{American 且已触及障碍?}
+  hit -->|是| rebate[本金保障的本金加现金返还，存续结束]
+  hit -->|否| mat{到到期日?}
+  mat -->|否| day
+  mat -->|是| touch{到期触及障碍?}
+  touch -->|是| rebate2[本金保障的本金加现金返还]
+  touch -->|否| between{落在执行价和障碍之间?}
+  between -->|是| part[本金加上参与率乘以这段涨跌，不超过现金返还所代表的结果]
+  between -->|否| floor[至少拿回本金保障。有最低收益再加保底票息]</pre>
+      <p>底数：名义 1,000,000，看涨，执行价 100，上障碍 120，参与率 100%，现金返还 5%，本金保障 100%。</p>
+      <div class="scenario">
+        <div class="prod-tabs" role="tablist" aria-label="鲨鱼鳍参数场景">
+          <button type="button" data-scene="american">American，中途触及</button>
+          <button type="button" data-scene="euro">European，只在到期看</button>
+          <button type="button" data-scene="between">到期落在区间内</button>
+          <button type="button" data-scene="floor">到期在执行价下</button>
+          <button type="button" data-scene="min">最低收益</button>
+          <button type="button" data-scene="bear">看跌</button>
+        </div>
+        <div class="scene" data-scene="american">
+          <h3>参数</h3>
+          <p>票息敲出类型 American。最低收益为否。</p>
+          <h3>走向</h3>
+          <p>存续中价格到 120。当天结束，拿本金 1,000,000 加现金返还 50,000，共 1,050,000。之后不再参与上涨。</p>
+        </div>
+        <div class="scene" data-scene="euro">
+          <h3>参数</h3>
+          <p>票息敲出类型改成 European。</p>
+          <h3>走向</h3>
+          <p>存续中价格到过 120，到期前不结束。到期价回到 110，没有停在障碍上，落在执行价 100 和上障碍 120 之间，按参与率跟上这 10%，拿回 1,100,000。</p>
+        </div>
+        <div class="scene" data-scene="between">
+          <h3>参数</h3>
+          <p>American，存续中没有触及 120。</p>
+          <h3>走向</h3>
+          <p>到期价 110，在 100 和 120 之间。参与率 100%，拿回 1,100,000。</p>
+        </div>
+        <div class="scene" data-scene="floor">
+          <h3>参数</h3>
+          <p>本金保障 100%，最低收益为否。</p>
+          <h3>走向</h3>
+          <p>到期价 90，低于执行价 100。下跌不往下跟，拿回 1,000,000。</p>
+        </div>
+        <div class="scene" data-scene="min">
+          <h3>参数</h3>
+          <p>最低收益改成是，保底票息 2%。到期价仍是 90。</p>
+          <h3>走向</h3>
+          <p>本金 1,000,000 之外再加保底 20,000，拿回 1,020,000。</p>
+        </div>
+        <div class="scene" data-scene="bear">
+          <h3>参数</h3>
+          <p>方向改成看跌。执行价 100，下障碍 80，参与率 100%，现金返还 5%，American。</p>
+          <h3>走向</h3>
+          <p>到期价 90，落在执行价和下障碍之间，按下跌的 10% 参与，拿回 1,100,000。若存续中价格跌到 80，则提前结束，改拿本金加现金返还 1,050,000。</p>
+        </div>
+      </div>
+      </section>
+
+      <section class="flow" id="participation" data-cat="Other" hidden>
+      <h2>Performance Participation 和 Skyline</h2>
+      <p>这两款没有敲入，也没有提前敲出赎回。存续中不发生逐期事件，到期算一次。Performance Participation 先按参与率跟上涨跌，再被封顶票息卡住，最后不低于本金保障。Skyline 把到期价放进上下障碍：落在里面拿封顶票息，落在外面拿保底票息，本金另按本金保障回来。</p>
+      <pre class="mermaid">flowchart TD
+  start[起息后持有到到期] --> mat[到期日]
+  mat --> kind{哪一款}
+  kind -->|Performance Participation| up[按方向和参与率计算涨跌]
+  up --> cap[结果不超过封顶票息]
+  cap --> protect[不低于本金保障]
+  kind -->|Skyline| inside{到期价落在上下障碍之间?}
+  inside -->|是| high[本金保障的本金加封顶票息]
+  inside -->|否| low[本金保障的本金加保底票息]</pre>
+      <div class="scenario">
+        <div class="prod-tabs" role="tablist" aria-label="参与和阶梯参数场景">
+          <button type="button" data-scene="cap">参与，涨幅被封顶</button>
+          <button type="button" data-scene="protect">参与，靠本金保障</button>
+          <button type="button" data-scene="bear">参与，看跌</button>
+          <button type="button" data-scene="in">Skyline，落在区间内</button>
+          <button type="button" data-scene="out">Skyline，落在区间外</button>
+        </div>
+        <div class="scene" data-scene="cap">
+          <h3>参数</h3>
+          <p>Performance Participation，看涨，名义 1,000,000，执行价 100，参与率 70%，封顶票息 15%，本金保障 90%。</p>
+          <h3>走向</h3>
+          <p>到期价 130，上涨 30%。先按参与率得到 21%，再被封顶压到 15%。拿回 1,150,000。</p>
+        </div>
+        <div class="scene" data-scene="protect">
+          <h3>参数</h3>
+          <p>同一组参与参数。到期价改成 80。</p>
+          <h3>走向</h3>
+          <p>下跌 20% 会落到 800,000，本金保障是 90%，所以拿回 900,000。</p>
+        </div>
+        <div class="scene" data-scene="bear">
+          <h3>参数</h3>
+          <p>方向改成看跌，参与率 70%，封顶票息 15%，本金保障 100%，执行价 100。</p>
+          <h3>走向</h3>
+          <p>到期价 70，下跌 30%。参与 70% 得到 21%，封顶压到 15%，拿回 1,150,000。看跌时跟上的是下跌。</p>
+        </div>
+        <div class="scene" data-scene="in">
+          <h3>参数</h3>
+          <p>Skyline。上障碍 110，下障碍 90，封顶票息 8%，保底票息 2%，本金保障 100%。</p>
+          <h3>走向</h3>
+          <p>到期价 100，落在两条障碍之间，拿本金加封顶票息，共 1,080,000。</p>
+        </div>
+        <div class="scene" data-scene="out">
+          <h3>参数</h3>
+          <p>Skyline，障碍和票息与上一档相同。</p>
+          <h3>走向</h3>
+          <p>到期价 120，落在上障碍外面，拿本金加保底票息，共 1,020,000。到期价 80 同样落在区间外，也是 1,020,000。</p>
+        </div>
+      </div>
+      </section>
+
+      <section class="flow" id="rates" data-cat="Other" hidden>
+      <h2>Floater 和 Vanilla Bond</h2>
+      <p>这两款更接近一笔债，存续场景名单里还没有。没有股票敲出。利息按付息频率支付，也可以到期一次付。过了不可赎回期，发行商可以按赎回频率提前把本金加应付利息退回。到期本金按本金保障回来。Floater 的利息随利率走，可以被封顶或保底卡住。Vanilla Bond 在固定利率和浮动点差里选一种。</p>
+      <pre class="mermaid">flowchart TD
+  start[起息] --> pay[到付息日，支付当期利息]
+  pay --> call{已过不可赎回期，且发行商赎回?}
+  call -->|是| redeemed[退回本金和应付利息，存续结束]
+  call -->|否| more{到到期日?}
+  more -->|否| pay
+  more -->|是| endNode[按本金保障返还本金，存续结束]</pre>
+      <div class="scenario">
+        <div class="prod-tabs" role="tablist" aria-label="付息参数场景">
+          <button type="button" data-scene="fixed">固定利率，持有到期</button>
+          <button type="button" data-scene="float">浮动，按月付</button>
+          <button type="button" data-scene="call">过锁定期后赎回</button>
+          <button type="button" data-scene="lock">仍在不可赎回期</button>
+        </div>
+        <div class="scene" data-scene="fixed">
+          <h3>参数</h3>
+          <p>Vanilla Bond。利率条件是固定利率 4%，付息频率到期一次付清，本金保障 100%，名义 1,000,000。发行商可赎回为否。</p>
+          <h3>走向</h3>
+          <p>存续中没有付息日。到期一次支付利息 40,000，并返还本金 1,000,000。</p>
+        </div>
+        <div class="scene" data-scene="float">
+          <h3>参数</h3>
+          <p>Floater。利率条件是上下都有，封顶票息 5%，保底票息 1%，付息频率每月，本金保障 100%。</p>
+          <h3>走向</h3>
+          <p>当月参考年化算出来是 0.2%，低于保底年化 1%，这一期按 1% 付。若算出来是 8%，则被封顶压到 5% 再付当期。到期返还本金 1,000,000。</p>
+        </div>
+        <div class="scene" data-scene="call">
+          <h3>参数</h3>
+          <p>发行商可赎回为是，不可赎回期 3 个月，赎回频率每 3 个月。固定利率 4%，按月付息。</p>
+          <h3>走向</h3>
+          <p>前 3 个月只付利息。第 6 个月到了赎回日，发行商赎回，退回本金 1,000,000 和尚未支付的利息，存续结束。</p>
+        </div>
+        <div class="scene" data-scene="lock">
+          <h3>参数</h3>
+          <p>不可赎回期 3 个月。现在是第 2 个月。</p>
+          <h3>走向</h3>
+          <p>即使发行商想赎回，也要等到不可赎回期结束。这一期只支付利息，票据继续。</p>
+        </div>
+      </div>
+      </section>
+    </article></main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>
+const CATS = [["Notes", "Notes"], ["OTC", "OTC"], ["Other", "其他"]];
+const LABELS = {
+  fcn: "FCN",
+  ben: "BEN",
+  eln: "ELN",
+  scn: "雪球",
+  phoenix: "Phoenix",
+  sharkfin: "鲨鱼鳍",
+  aq: "AQ / DQ",
+  participation: "参与和阶梯",
+  rates: "付息"
+};
+const catTabs = document.getElementById("cat-tabs");
+const prodTabs = document.getElementById("prod-tabs");
+const flows = [...document.querySelectorAll("section.flow")];
+let category = "Notes";
+let currentId = "fcn";
+
+function renderCats() {
+  catTabs.replaceChildren();
+  CATS.forEach(([id, label]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", String(id === category));
+    button.textContent = label;
+    button.addEventListener("click", () => {
+      category = id;
+      currentId = flows.find((item) => item.dataset.cat === id).id;
+      render();
+    });
+    catTabs.appendChild(button);
+  });
+}
+
+function renderProducts() {
+  prodTabs.replaceChildren();
+  flows.filter((item) => item.dataset.cat === category).forEach((item) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", String(item.id === currentId));
+    button.textContent = LABELS[item.id];
+    button.addEventListener("click", () => {
+      currentId = item.id;
+      render();
+    });
+    prodTabs.appendChild(button);
+  });
+}
+
+async function show() {
+  const id = currentId;
+  flows.forEach((item) => { item.hidden = item.id !== id; });
+  history.replaceState(null, "", "#" + id);
+  const panel = document.getElementById(id);
+  const nodes = [...panel.querySelectorAll("pre.mermaid")].filter((node) => !node.querySelector("svg"));
+  if (nodes.length) await mermaid.run({nodes});
+}
+
+function render() {
+  renderCats();
+  renderProducts();
+  show();
+}
+
+mermaid.initialize({startOnLoad: false, theme: "neutral", securityLevel: "loose"});
+document.querySelectorAll(".scenario").forEach((box) => {
+  const tabs = [...box.querySelectorAll("button[data-scene]")];
+  const panels = [...box.querySelectorAll(".scene")];
+  function activate(id) {
+    tabs.forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.scene === id)));
+    panels.forEach((panel) => { panel.hidden = panel.dataset.scene !== id; });
+  }
+  tabs.forEach((tab) => tab.addEventListener("click", () => activate(tab.dataset.scene)));
+  if (tabs[0]) activate(tabs[0].dataset.scene);
+});
+const fromHash = flows.find((item) => item.id === location.hash.slice(1));
+if (fromHash) {
+  category = fromHash.dataset.cat;
+  currentId = fromHash.id;
+}
+render();
+  </script>
+</body>
+</html>
